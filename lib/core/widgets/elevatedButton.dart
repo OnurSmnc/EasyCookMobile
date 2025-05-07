@@ -29,8 +29,17 @@ class ElevatedButtonWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           icon, // Display the icon
-          const SizedBox(width: 8), // Spacing between the icon and text
-          Text(title), // Display the title
+          const SizedBox(width: 8),
+          // Spacing between the icon and text
+          Flexible(
+            child: Text(
+              title,
+              softWrap: true,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+          ) // Display the title
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:easycook/core/utils/bottomNavigationBar.dart';
+import 'package:easycook/models/Recipe.dart';
 import 'package:flutter/material.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -176,20 +177,6 @@ class _FavoritePageState extends State<FavoritePage> {
       ),
     );
   }
-}
-
-class Recipe {
-  final String name;
-  final List<String> ingredients;
-  final String preparationTime;
-  final String imageUrl;
-
-  Recipe({
-    required this.name,
-    required this.ingredients,
-    required this.preparationTime,
-    required this.imageUrl,
-  });
 }
 
 class RecipeDetailPage extends StatelessWidget {

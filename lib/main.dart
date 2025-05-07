@@ -1,4 +1,5 @@
 import 'package:easycook/views/favorite/favorite_page.dart';
+import 'package:easycook/views/history/history_page.dart';
 import 'package:easycook/views/home/home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FavoritePage(),
+      home: HistoryPage(),
     );
   }
 }
