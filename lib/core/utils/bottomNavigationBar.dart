@@ -1,35 +1,25 @@
+// lib/main.dart
+import 'package:easycook/views/home/widgets/recipe_card.dart';
+import 'package:flutter/material.dart';
 import 'package:easycook/views/favorite/favorite_page.dart';
 import 'package:easycook/views/history/history_page.dart';
-import 'package:easycook/views/home/home_page.dart';
-import 'package:flutter/material.dart';
+import 'package:easycook/views/home/screens/home_page.dart';
 
-class NavigationMenu extends StatelessWidget {
-  const NavigationMenu({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: BottomNavigationBarWidget(),
-    );
-  }
-}
-
-class BottomNavigationBarWidget extends StatefulWidget {
-  const BottomNavigationBarWidget({super.key});
+class MainNavigationWrapper extends StatefulWidget {
+  const MainNavigationWrapper({Key? key}) : super(key: key);
 
   @override
-  _BottomNavigationBarWidgetState createState() =>
-      _BottomNavigationBarWidgetState();
+  _MainNavigationWrapperState createState() => _MainNavigationWrapperState();
 }
 
-class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
+class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _selectedIndex = 0;
 
-  // Sayfa listesi
+  // Page list
   final List<Widget> _pages = [
-    HomePage(),
-    HistoryPage(),
-    FavoritePage(),
+    const HomePage(),
+    const FavoritePage(),
+    TestButtonPage()
   ];
 
   void _onItemTapped(int index) {
@@ -41,7 +31,7 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex], // Seçilen sayfayı göster
+      body: _pages[_selectedIndex], // Show selected page
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -50,28 +40,19 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
             backgroundColor: Colors.orange,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Arama',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            label: 'Geçmiş',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favoriler',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-            backgroundColor: Colors.orange,
+            icon: Icon(Icons.settings),
+            label: 'TestBuuton',
           ),
         ],
-        currentIndex: _selectedIndex, // Seçilen sekmeyi göster
+        currentIndex: _selectedIndex,
         selectedItemColor: Colors.orange,
         unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed, // 3'ten fazla öğe için gerekli
-        onTap: _onItemTapped, // Sekme değişimi
+        type: BottomNavigationBarType.fixed, // Required for more than 3 items
+        onTap: _onItemTapped, // Tab change
       ),
     );
   }

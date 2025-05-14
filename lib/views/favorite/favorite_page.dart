@@ -1,5 +1,5 @@
 import 'package:easycook/core/utils/bottomNavigationBar.dart';
-import 'package:easycook/models/Recipe.dart';
+import 'package:easycook/core/data/models/Recipe.dart';
 import 'package:flutter/material.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -93,7 +93,6 @@ class _FavoritePageState extends State<FavoritePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavigationMenu(),
       appBar: AppBar(
         title: const Text(
           'EasyCook',
@@ -130,7 +129,6 @@ class _FavoritePageState extends State<FavoritePage> {
           ),
           Expanded(
             child: ListView.builder(
-              shrinkWrap: true,
               itemCount: _suggestedRecipes.length,
               itemBuilder: (context, index) {
                 final recipe = _suggestedRecipes[index];

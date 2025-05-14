@@ -1,10 +1,11 @@
+import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
-import 'package:easycook/models/Recipe.dart';
+import 'package:easycook/core/data/models/Recipe.dart';
 import 'package:flutter/material.dart';
 
 class ViewedRecipes extends StatefulWidget {
   final int selectedIndex;
-  final List<Recipe> suggestedRecipes; // Make sure this is passed correctly
+  final List<Recipes> suggestedRecipes; // Make sure this is passed correctly
 
   const ViewedRecipes({
     required this.selectedIndex,
@@ -43,7 +44,7 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
 }
 
 class RecipeCard extends StatelessWidget {
-  final Recipe recipe;
+  final Recipes recipe;
 
   const RecipeCard({Key? key, required this.recipe}) : super(key: key);
 
@@ -68,7 +69,7 @@ class RecipeCard extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Text('${recipe.name} Görseli'),
+              child: Text('${recipe.title} Görseli'),
             ),
           ),
           Padding(
@@ -77,7 +78,7 @@ class RecipeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  recipe.name,
+                  recipe.title,
                   style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -85,12 +86,12 @@ class RecipeCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Malzemeler: ${recipe.ingredients.join(", ")}',
+                  'Malzemeler: ${recipe.ingredients}',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Hazırlama Süresi: ${recipe.preparationTime}',
+                  'Urli: ${recipe.url}',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 12),
