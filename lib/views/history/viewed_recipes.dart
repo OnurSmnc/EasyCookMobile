@@ -1,11 +1,13 @@
 import 'package:easycook/core/data/models/recipes.dart';
+import 'package:easycook/core/data/models/viewedHistory.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/core/data/models/Recipe.dart';
 import 'package:flutter/material.dart';
 
 class ViewedRecipes extends StatefulWidget {
   final int selectedIndex;
-  final List<Recipes> suggestedRecipes; // Make sure this is passed correctly
+  final List<ViewedRecipeHistoryItem> // Use the correct type for your data
+      suggestedRecipes; // Make sure this is passed correctly
 
   const ViewedRecipes({
     required this.selectedIndex,
@@ -30,12 +32,21 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
         ),
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: widget
-              .suggestedRecipes.length, // Use widget.suggestedRecipes here
+          itemCount: widget.suggestedRecipes.length,
           itemBuilder: (context, index) {
-            final recipe = widget.suggestedRecipes[index]; // Access the recipe
-            return RecipeCard(
-                recipe: recipe); // Pass recipe to the RecipeCard widget
+            final viewedRecipe = widget.suggestedRecipes[index];
+
+            // Recipes modeline uygun şekilde doldur
+            final recipe = Recipes(
+              title: viewedRecipe.title,
+              recipeFood: viewedRecipe.recipeFood,
+              ingredients: viewedRecipe.ingredients,
+              url: viewedRecipe.url,
+              id: viewedRecipe.recipeId,
+              createdDate: viewedRecipe.viewedDate,
+            );
+
+            return RecipeCard(recipe: recipe);
           },
         ),
       ),
@@ -69,7 +80,11 @@ class RecipeCard extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Text('${recipe.title} Görseli'),
+              child: Text(
+                '${recipe.title} Görseli',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           Padding(
@@ -77,28 +92,71 @@ class RecipeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// Title
                 Text(
                   recipe.title,
                   style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+
+                const SizedBox(height: 4),
+
+                /// Date
+                Text(
+                  recipe.createdDate.toString(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+
                 const SizedBox(height: 8),
+
+                /// Ingredients
                 Text(
                   'Malzemeler: ${recipe.ingredients}',
                   style: const TextStyle(fontSize: 14),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
+
                 const SizedBox(height: 4),
+
+                /// URL
                 Text(
-                  'Urli: ${recipe.url}',
-                  style: const TextStyle(fontSize: 14),
+                  'Url: ${recipe.url}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.blueAccent,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+
                 const SizedBox(height: 12),
-                ElevatedButtonWidget(
-                    onPressed: () => {}, // Add functionality if needed
-                    title: "Tarifi Gör",
-                    icon: Icon(Icons.restaurant_menu))
+
+                /// Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // Add functionality
+                    },
+                    icon: const Icon(Icons.restaurant_menu),
+                    label: const Text("Tarifi Gör"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),

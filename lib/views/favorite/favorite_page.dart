@@ -1,3 +1,7 @@
+import 'package:easycook/core/data/models/favorite.dart';
+import 'package:easycook/core/data/repositories/favorite_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/utils/bottomNavigationBar.dart';
 import 'package:easycook/core/data/models/Recipe.dart';
 import 'package:flutter/material.dart';
@@ -10,71 +14,27 @@ class FavoritePage extends StatefulWidget {
 }
 
 class _FavoritePageState extends State<FavoritePage> {
-  List<String> _detectedIngredients = [];
-  List<Recipe> _suggestedRecipes = [];
+  List<Favorite> _favoriteRecipes = [];
   List<bool> _tappedState = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _suggestedRecipes = [
-      Recipe(
-        name: 'Menemen',
-        ingredients: ['Domates', 'Soğan', 'Biber', 'Yumurta', 'Zeytinyağı'],
-        preparationTime: '20 dk',
-        imageUrl: 'https://example.com/menemen.jpg',
-      ),
-      Recipe(
-        name: 'Domates Çorbası',
-        ingredients: ['Domates', 'Soğan', 'Un', 'Tereyağı', 'Su'],
-        preparationTime: '30 dk',
-        imageUrl: 'https://example.com/domates_corbasi.jpg',
-      ),
-      Recipe(
-        name: 'Menemen',
-        ingredients: ['Domates', 'Soğan', 'Biber', 'Yumurta', 'Zeytinyağı'],
-        preparationTime: '20 dk',
-        imageUrl: 'https://example.com/menemen.jpg',
-      ),
-      Recipe(
-        name: 'Domates Çorbası',
-        ingredients: ['Domates', 'Soğan', 'Un', 'Tereyağı', 'Su'],
-        preparationTime: '30 dk',
-        imageUrl: 'https://example.com/domates_corbasi.jpg',
-      ),
-      Recipe(
-        name: 'Menemen',
-        ingredients: ['Domates', 'Soğan', 'Biber', 'Yumurta', 'Zeytinyağı'],
-        preparationTime: '20 dk',
-        imageUrl: 'https://example.com/menemen.jpg',
-      ),
-      Recipe(
-        name: 'Domates Çorbası',
-        ingredients: ['Domates', 'Soğan', 'Un', 'Tereyağı', 'Su'],
-        preparationTime: '30 dk',
-        imageUrl: 'https://example.com/domates_corbasi.jpg',
-      ),
-      Recipe(
-        name: 'Menemen',
-        ingredients: ['Domates', 'Soğan', 'Biber', 'Yumurta', 'Zeytinyağı'],
-        preparationTime: '20 dk',
-        imageUrl: 'https://example.com/menemen.jpg',
-      ),
-      Recipe(
-        name: 'Domates Çorbası',
-        ingredients: ['Domates', 'Soğan', 'Un', 'Tereyağı', 'Su'],
-        preparationTime: '30 dk',
-        imageUrl: 'https://example.com/domates_corbasi.jpg',
-      ),
-      Recipe(
-        name: 'Domates Çorbası',
-        ingredients: ['Domates', 'Soğan', 'Un', 'Tereyağı', 'Su'],
-        preparationTime: '30 dk',
-        imageUrl: 'https://example.com/domates_corbasi.jpg',
-      ),
-    ];
-    _tappedState = List.generate(_suggestedRecipes.length, (index) => false);
+    _fetchFavorite();
+  }
+
+  Future<void> _fetchFavorite() async {
+    final repo = FavoriteRepository(ApiService(baseUrl: ApiConstats.baseUrl));
+    final favorite = await repo.getFavorites();
+
+    setState(() {
+      _favoriteRecipes = favorite;
+      _tappedState = List.generate(
+        _favoriteRecipes.length ?? 0,
+        (index) => false,
+      );
+    });
   }
 
   void _onRecipeTapped(int index) {
@@ -83,8 +43,13 @@ class _FavoritePageState extends State<FavoritePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              RecipeDetailPage(recipe: _suggestedRecipes[index]),
+          builder: (context) => RecipeDetailPage(
+              recipe: Recipe(
+            name: _favoriteRecipes[index].viewedRecipe.title,
+            imageUrl: "",
+            ingredients: [_favoriteRecipes[index].viewedRecipe.ingredients],
+            preparationTime: "30 dakika",
+          )),
         ),
       );
     });
@@ -129,9 +94,9 @@ class _FavoritePageState extends State<FavoritePage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _suggestedRecipes.length,
+              itemCount: _favoriteRecipes.length,
               itemBuilder: (context, index) {
-                final recipe = _suggestedRecipes[index];
+                final recipe = _favoriteRecipes[index];
                 return Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
@@ -150,10 +115,11 @@ class _FavoritePageState extends State<FavoritePage> {
                         contentPadding: EdgeInsets.all(12),
                         leading: CircleAvatar(
                           radius: 30,
-                          backgroundImage: NetworkImage(recipe.imageUrl),
+                          backgroundImage:
+                              NetworkImage(recipe.viewedRecipe.url),
                         ),
                         title: Text(
-                          recipe.name,
+                          recipe.viewedRecipe.title,
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -161,8 +127,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                   ? Colors.black
                                   : Colors.white),
                         ),
-                        subtitle:
-                            Text("Hazırlık Süresi: ${recipe.preparationTime}"),
+                        subtitle: Text("Hazırlık Süresi: 30 dakika}"),
                         trailing: Icon(Icons.favorite, color: Colors.orange),
                       ),
                     ),

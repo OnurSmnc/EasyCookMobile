@@ -1,3 +1,4 @@
+import 'package:easycook/core/data/models/favorite.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 
@@ -67,6 +68,20 @@ class FavoriteRepository {
     } catch (e) {
       print('ViewedRecipeRepository - addViewedRecipeAndReturnId error: $e');
       return null;
+    }
+  }
+
+  Future<List<Favorite>> getFavorites() async {
+    try {
+      final response = await _apiService.get(ApiConstats.getFavorite);
+      print('favorite response: $response');
+      final List<dynamic> data = response as List<dynamic>;
+      print('favorite data: $data');
+
+      return data.map((e) => Favorite.fromJson(e)).toList();
+    } catch (e) {
+      print('FavoriteRepository - getFavorites error: $e');
+      return [];
     }
   }
 }

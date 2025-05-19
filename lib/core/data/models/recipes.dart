@@ -4,6 +4,7 @@ class Recipes {
   final String url;
   final String ingredients;
   final String recipeFood;
+  final String createdDate;
 
   Recipes({
     required this.id,
@@ -11,6 +12,7 @@ class Recipes {
     required this.url,
     required this.ingredients,
     required this.recipeFood,
+    required this.createdDate,
   });
 
   factory Recipes.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Recipes {
       url: json['url'],
       ingredients: json['ingredients'],
       recipeFood: json['recipeFood'],
+      createdDate: json['createdDate'],
     );
   }
 
@@ -30,6 +33,7 @@ class Recipes {
       'url': url,
       'ingredients': ingredients,
       'recipeFood': recipeFood,
+      'createdDate': createdDate,
     };
   }
 }

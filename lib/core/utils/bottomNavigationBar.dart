@@ -19,7 +19,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   final List<Widget> _pages = [
     const HomePage(),
     const FavoritePage(),
-    TestButtonPage()
+    const HistoryPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -44,9 +44,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             label: 'Favoriler',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'TestBuuton',
-          ),
+            icon: Icon(Icons.history),
+            label: 'History',
+          )
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.orange,
