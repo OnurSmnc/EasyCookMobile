@@ -7,17 +7,29 @@ import 'package:path/path.dart';
 import 'package:mime/mime.dart';
 
 class ApiService {
-  final String baseUrl;
-  final Map<String, String> defaultHeaders;
+  String? _bearerToken;
 
   ApiService({
     required this.baseUrl,
     this.defaultHeaders = const {
       'Content-Type': 'application/json',
-      'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2Mjk2NDBmMC0xNjZkLTRhMjYtYWZhNi1kNTYwZGI0OWE1MDkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjM5ODY2OTQ1LWJlZDMtNGQwMy00ZjlhLTA4ZGQ3NmE3Zjk4YiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImRlbmVtZTJAZ21haWwuY29tIiwiZXhwIjoxNzQ1MjYzMzExLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAifQ.vA2LcHzjiIFL91bjDP24utUr21J3DIYbGsdviLdYV7U'
     },
   });
+
+  final String baseUrl;
+  final Map<String, String> defaultHeaders;
+
+  void updateAuthorizationHeader(String token) {
+    _bearerToken = token;
+  }
+
+  Map<String, String> _getHeaders([Map<String, String>? extra]) {
+    final headers = {...defaultHeaders, ...?extra};
+    if (_bearerToken != null) {
+      headers['Authorization'] = 'Bearer $_bearerToken';
+    }
+    return headers;
+  }
 
   // Yeni eklenen: Resim veya dosya yükleme fonksiyonu
   Future<dynamic> uploadFile(String endpoint, File file,
@@ -27,10 +39,9 @@ class ApiService {
 
       final request = http.MultipartRequest('POST', uri);
 
-      // Header'lar (Content-Type burada multipart olduğu için elle yazma!)
-      request.headers.addAll(
-          defaultHeaders.map((key, value) => MapEntry(key, value))
-            ..remove('Content-Type'));
+      // Authorization ve diğer header'ları ekle
+      final headers = _getHeaders(); // burada Bearer token da eklenmiş olur
+      request.headers.addAll(headers);
 
       String? mimeType =
           lookupMimeType(file.path); // Dosya uzantısına göre mime type bulur
@@ -62,7 +73,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: {...defaultHeaders, ...?headers},
+        headers: _getHeaders(headers),
       );
       return _processResponse(response);
     } catch (e) {
@@ -81,7 +92,7 @@ class ApiService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: {...defaultHeaders, ...?headers},
+        headers: _getHeaders(headers),
         body: json.encode(bodyData),
       );
       return _processResponse(response);
@@ -95,7 +106,7 @@ class ApiService {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: {...defaultHeaders, ...?headers},
+        headers: _getHeaders(headers),
         body: json.encode(data),
       );
       return _processResponse(response);
@@ -109,7 +120,7 @@ class ApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: {...defaultHeaders, ...?headers},
+        headers: _getHeaders(headers),
       );
       return _processResponse(response);
     } catch (e) {

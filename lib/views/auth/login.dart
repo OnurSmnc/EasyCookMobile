@@ -1,3 +1,10 @@
+import 'package:easycook/core/data/models/login/login_request.dart';
+import 'package:easycook/core/data/models/refreshToken/refreshToken_request.dart';
+import 'package:easycook/core/data/repositories/auth_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_exception.dart';
+import 'package:easycook/core/service/api_service.dart';
+import 'package:easycook/core/utils/bottomNavigationBar.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/views/auth/register.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +20,44 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void login() {
+  final apiService = ApiService(baseUrl: ApiConstats.baseUrl);
+  late final authRepository = AuthRepository(apiService);
+
+  void login() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
     // Giriş işlemi burada yapılır (API çağrısı veya Firebase)
     print("Email: $email, Password: $password");
+
+    try {
+      final loginResponse = await authRepository
+          .login(LoginRequest(email: email, password: password));
+
+      // refresh token'ı kullanarak access token yenile
+      final refreshResponse = await authRepository.refreshToken(
+        RefreshTokenRequest(
+          accessToken: loginResponse.token,
+          refreshToken: loginResponse.refreshToken,
+        ),
+      );
+
+      // refresh'ten dönen refreshToken'ı Authorization header olarak ayarla
+      apiService.updateAuthorizationHeader(refreshResponse.refreshToken);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigationWrapper()),
+      );
+    } on ApiException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hata: ${e.message}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bilinmeyen bir hata oluştu')),
+      );
+    }
 
     // Doğrulama sonrası başka sayfaya yönlendirme yapılabilir
   }
