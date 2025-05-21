@@ -3,6 +3,7 @@ import 'package:easycook/views/favorite/favorite_page.dart';
 import 'package:easycook/views/history/history_page.dart';
 import 'package:easycook/views/home/screens/home_page.dart';
 import 'package:easycook/views/home/screens/home_recipe_page.dart';
+import 'package:easycook/views/auth/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MainNavigationWrapper(),
+      home: LoginPage(),
     );
   }
 }

@@ -1,0 +1,158 @@
+import 'package:easycook/core/widgets/elevatedButton.dart';
+import 'package:easycook/views/auth/login.dart';
+import 'package:flutter/material.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
+  void register() {
+    if (_formKey.currentState!.validate()) {
+      final firstName = firstNameController.text.trim();
+      final lastName = lastNameController.text.trim();
+      final email = emailController.text.trim();
+      final password = passwordController.text;
+      final confirmPassword = confirmPasswordController.text;
+
+      if (password != confirmPassword) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Şifreler eşleşmiyor!")),
+        );
+        return;
+      }
+
+      final fullName = "$firstName $lastName";
+
+      // Backend'e gönderilecek JSON verisi:
+      final registerData = {
+        "firstName": firstName,
+        "lastName": lastName,
+        "fullName": fullName,
+        "email": email,
+        "password": password,
+        "confirmPassword": confirmPassword,
+      };
+
+      print(registerData); // Gerçek sistemde burada HTTP POST yapılır
+
+      // Kayıt sonrası giriş ekranına yönlendirme
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  "Kayıt başarılı!",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
+
+      // Navigator.pop(context); // Giriş sayfasına dön
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Kayıt Ol")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: firstNameController,
+                decoration: const InputDecoration(labelText: "Ad"),
+                validator: (value) =>
+                    value!.isEmpty ? "Ad boş bırakılamaz" : null,
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: lastNameController,
+                decoration: const InputDecoration(labelText: "Soyad"),
+                validator: (value) =>
+                    value!.isEmpty ? "Soyad boş bırakılamaz" : null,
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: "E-posta"),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) => value!.isEmpty ? "E-posta giriniz" : null,
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: "Şifre"),
+                obscureText: true,
+                validator: (value) =>
+                    value!.length < 6 ? "Şifre en az 6 karakter olmalı" : null,
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: confirmPasswordController,
+                decoration: const InputDecoration(labelText: "Şifre (Tekrar)"),
+                obscureText: true,
+                validator: (value) =>
+                    value!.isEmpty ? "Şifreyi tekrar giriniz" : null,
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButtonWidget(
+                  onPressed: register,
+                  icon: Icon(Icons.app_registration, color: Colors.white),
+                  title: "Kayıt Ol",
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterPage()),
+                  ); // Giriş sayfasına dön
+                },
+                child: const Text(
+                  "Zaten bir hesabın var mı? Giriş Yap",
+                  style: TextStyle(color: Colors.orange),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
