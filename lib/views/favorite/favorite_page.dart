@@ -25,7 +25,7 @@ class _FavoritePageState extends State<FavoritePage> {
   }
 
   Future<void> _fetchFavorite() async {
-    final repo = FavoriteRepository(ApiService(baseUrl: ApiConstats.baseUrl));
+    final repo = FavoriteRepository();
     final favorite = await repo.getFavorites();
 
     setState(() {

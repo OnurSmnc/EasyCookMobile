@@ -3,13 +3,14 @@ class ApiConstats {
 
   //Endpointler
   static const String addViewedRecipes = 'api/ViewedRecipe/CreateViewedHistory';
-  static const String detectIngredients = '/api/Malzeme/DetectIngredients';
+  static const String detectIngredients = 'api/Malzeme/DetectIngredients';
   static const String addFavorite =
       'api/FavoriteFood/CreateFavoriteRecipe'; // Updated endpoint
   static const String getFavorite = 'api/FavoriteFood/GetAllFavoriteFood';
   static const String getViewedHistory = 'api/ViewedRecipe/GetAllViewedHistory';
   static const String login = 'api/Auth/Login';
   static const String refreshToken = 'api/Auth/RefreshToken';
+  static const String register = 'api/Auth/Register';
 
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds

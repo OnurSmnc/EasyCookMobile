@@ -8,47 +8,21 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 class RecipeRepository {
-  final ApiService _apiService;
+  final ApiService _api = ApiService();
 
-  RecipeRepository(this._apiService);
+  RecipeRepository();
 
   Future<RecipeApiResponse> detectIngredientsFromImage(File imageFile) async {
-    final uri =
-        Uri.parse('${ApiConstats.baseUrl}${ApiConstats.detectIngredients}');
+    try {
+      final response = await _api.uploadFile(
+        ApiConstats.detectIngredients,
+        imageFile,
+        fieldName: 'file', // API bu alan adını bekliyorsa
+      );
 
-    final extension = imageFile.path.split('.').last.toLowerCase();
-
-    String mimeType;
-    switch (extension) {
-      case 'jpg':
-      case 'jpeg':
-        mimeType = 'jpeg';
-        break;
-      case 'png':
-        mimeType = 'png';
-        break;
-      default:
-        throw Exception('Desteklenmeyen dosya türü: .$extension');
-    }
-
-    final request = http.MultipartRequest('POST', uri)
-      ..headers.addAll(
-          _apiService.defaultHeaders.map((key, value) => MapEntry(key, value))
-            ..remove('Content-Type'))
-      ..files.add(await http.MultipartFile.fromPath(
-        'file', // ✅ Sunucunun beklediği form alanı adı
-        imageFile.path,
-        contentType: MediaType('image', mimeType),
-      ));
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      return RecipeApiResponse.fromJson(json.decode(response.body));
-    } else {
-      print('Hata içeriği: ${response.body}');
-      throw Exception('Malzeme tespiti başarısız: ${response.statusCode}');
+      return RecipeApiResponse.fromJson(response);
+    } catch (e) {
+      throw Exception('Malzeme tespiti başarısız: $e');
     }
   }
 }

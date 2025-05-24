@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
 
   final apiService = ApiService(baseUrl: ApiConstats.baseUrl);
-  late final authRepository = AuthRepository(apiService);
+  late final authRepository = AuthRepository();
 
   void login() async {
     final email = emailController.text.trim();
@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
       final loginResponse = await authRepository
           .login(LoginRequest(email: email, password: password));
 
-      // refresh token'ı kullanarak access token yenile
+      // refresh token'ı kullanarak access token yeniless
       final refreshResponse = await authRepository.refreshToken(
         RefreshTokenRequest(
           accessToken: loginResponse.token,
@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       // refresh'ten dönen refreshToken'ı Authorization header olarak ayarla
-      apiService.updateAuthorizationHeader(refreshResponse.refreshToken);
+      apiService.updateAuthorizationHeader(refreshResponse.accessToken);
 
       Navigator.push(
         context,

@@ -7,31 +7,67 @@ import 'package:path/path.dart';
 import 'package:mime/mime.dart';
 
 class ApiService {
-  String? _bearerToken;
+  // ✅ Singleton instance - tek bir kez oluşturulur
+  static ApiService? _instance;
 
-  ApiService({
+  // ✅ Factory constructor - her çağrıldığında aynı instance döner
+  factory ApiService({
+    String? baseUrl,
+    Map<String, String>? defaultHeaders,
+    String? bearerToken,
+  }) {
+    // İlk kez çağrıldığında instance oluştur
+    if (_instance == null) {
+      _instance = ApiService._internal(
+        baseUrl: baseUrl ?? 'https://api.example.com',
+        defaultHeaders: defaultHeaders ??
+            const {
+              'Content-Type': 'application/json',
+            },
+        bearerToken: bearerToken,
+      );
+    }
+    return _instance!;
+  }
+
+  // Private constructor
+  ApiService._internal({
     required this.baseUrl,
-    this.defaultHeaders = const {
-      'Content-Type': 'application/json',
-    },
-  });
+    required this.defaultHeaders,
+    String? bearerToken,
+  }) : _bearerToken = bearerToken;
 
   final String baseUrl;
   final Map<String, String> defaultHeaders;
 
+  // ✅ Bu değişken singleton instance'da korunur
+  String? _bearerToken;
+
+  // ✅ Token'ı set et - bir kez set edilince kalıcı olur
   void updateAuthorizationHeader(String token) {
     _bearerToken = token;
+    print("🔑 Token set edildi: $_bearerToken");
+  }
+
+  // Token getter
+  String? get bearerToken => _bearerToken;
+
+  // Token temizleme (logout için)
+  void clearToken() {
+    _bearerToken = null;
+    print("🔑 Token temizlendi");
   }
 
   Map<String, String> _getHeaders([Map<String, String>? extra]) {
     final headers = {...defaultHeaders, ...?extra};
     if (_bearerToken != null) {
       headers['Authorization'] = 'Bearer $_bearerToken';
+      print("🔑 Authorization header eklendi: Bearer $_bearerToken");
     }
     return headers;
   }
 
-  // Yeni eklenen: Resim veya dosya yükleme fonksiyonu
+  // Resim veya dosya yükleme fonksiyonu
   Future<dynamic> uploadFile(String endpoint, File file,
       {String fieldName = 'file'}) async {
     try {
@@ -39,19 +75,17 @@ class ApiService {
 
       final request = http.MultipartRequest('POST', uri);
 
-      // Authorization ve diğer header'ları ekle
-      final headers = _getHeaders(); // burada Bearer token da eklenmiş olur
+      // ✅ Authorization header otomatik eklenir
+      final headers = _getHeaders();
       request.headers.addAll(headers);
 
-      String? mimeType =
-          lookupMimeType(file.path); // Dosya uzantısına göre mime type bulur
+      String? mimeType = lookupMimeType(file.path);
       if (mimeType == null) {
         throw ApiException('Desteklenmeyen dosya türü');
       }
 
       final mediaType = MediaType.parse(mimeType);
 
-      // Dosya ekleme
       request.files.add(await http.MultipartFile.fromPath(
         fieldName,
         file.path,
@@ -59,7 +93,6 @@ class ApiService {
         filename: basename(file.path),
       ));
 
-      // İsteği gönder
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -73,7 +106,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _getHeaders(headers),
+        headers: _getHeaders(headers), // ✅ Token otomatik eklenir
       );
       return _processResponse(response);
     } catch (e) {
@@ -81,18 +114,17 @@ class ApiService {
     }
   }
 
-  Future<dynamic> post(String endpoint, dynamic data,
+  Future<dynamic> post(String? endpoint, dynamic data,
       {Map<String, String>? headers}) async {
     try {
-      // Veriyi JSON'a dönüştürmeden önce kontrol et
       var bodyData = data;
       if (data is String) {
-        bodyData = {'data': data}; // String'i JSON objesi içine al
+        bodyData = {'data': data};
       }
 
       final response = await http.post(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _getHeaders(headers),
+        headers: _getHeaders(headers), // ✅ Token otomatik eklenir
         body: json.encode(bodyData),
       );
       return _processResponse(response);
@@ -106,7 +138,7 @@ class ApiService {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _getHeaders(headers),
+        headers: _getHeaders(headers), // ✅ Token otomatik eklenir
         body: json.encode(data),
       );
       return _processResponse(response);
@@ -120,7 +152,7 @@ class ApiService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _getHeaders(headers),
+        headers: _getHeaders(headers), // ✅ Token otomatik eklenir
       );
       return _processResponse(response);
     } catch (e) {
@@ -131,6 +163,7 @@ class ApiService {
   dynamic _processResponse(http.Response response) {
     print('Status code: ${response.statusCode}');
     print('Response body: ${response.body}');
+
     switch (response.statusCode) {
       case 200:
       case 201:
@@ -142,6 +175,9 @@ class ApiService {
         throw BadRequestException(response.body);
       case 401:
       case 403:
+        // ✅ 401 hatası durumunda token'ı temizle (session expired)
+        print("🚨 401 Unauthorized - Token temizleniyor");
+        clearToken();
         throw UnauthorizedException(response.body);
       case 404:
         throw NotFoundException(response.body);

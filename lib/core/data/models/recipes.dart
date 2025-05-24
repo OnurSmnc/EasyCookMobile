@@ -4,7 +4,7 @@ class Recipes {
   final String url;
   final String ingredients;
   final String recipeFood;
-  final String createdDate;
+  final String? createdDate;
 
   Recipes({
     required this.id,
@@ -12,7 +12,7 @@ class Recipes {
     required this.url,
     required this.ingredients,
     required this.recipeFood,
-    required this.createdDate,
+    this.createdDate,
   });
 
   factory Recipes.fromJson(Map<String, dynamic> json) {

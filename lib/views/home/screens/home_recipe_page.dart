@@ -139,9 +139,7 @@ class HomeRecipePage extends StatelessWidget {
             children: [
               ElevatedButtonWidget(
                 onPressed: () async {
-                  await FavoriteRepository(
-                    ApiService(baseUrl: ApiConstats.baseUrl),
-                  ).addFavoriteRecipe(viewedRecipeId);
+                  await FavoriteRepository().addFavoriteRecipe(viewedRecipeId);
                 },
                 icon: const Icon(Icons.favorite_border),
                 title: "Favorilere Ekle",

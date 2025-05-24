@@ -1,3 +1,7 @@
+import 'package:easycook/core/data/models/register/register_request.dart';
+import 'package:easycook/core/data/repositories/auth_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/views/auth/login.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +22,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void register() {
+  final apiService =
+      ApiService(baseUrl: ApiConstats.baseUrl); // Örnek API URL'si
+  late final AuthRepository authRepository = AuthRepository();
+
+  void register() async {
     if (_formKey.currentState!.validate()) {
       final firstName = firstNameController.text.trim();
       final lastName = lastNameController.text.trim();
@@ -35,17 +43,37 @@ class _RegisterPageState extends State<RegisterPage> {
 
       final fullName = "$firstName $lastName";
 
-      // Backend'e gönderilecek JSON verisi:
-      final registerData = {
-        "firstName": firstName,
-        "lastName": lastName,
-        "fullName": fullName,
-        "email": email,
-        "password": password,
-        "confirmPassword": confirmPassword,
-      };
-
-      print(registerData); // Gerçek sistemde burada HTTP POST yapılır
+      try {
+        final registerRequest = RegisterRequest(
+          email: email,
+          password: password,
+          confirmPassword: confirmPassword,
+          firstName: firstName,
+          lastName: lastName,
+          fullName: fullName,
+        );
+        final registerResponse = await authRepository.register(registerRequest);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.red),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text("Kayıt başarısız: $e",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              )),
+        );
+        return;
+      }
 
       // Kayıt sonrası giriş ekranına yönlendirme
       ScaffoldMessenger.of(context).showSnackBar(

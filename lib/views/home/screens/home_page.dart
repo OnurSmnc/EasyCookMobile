@@ -36,8 +36,7 @@ class _HomePageState extends State<HomePage> {
 
       try {
         final response =
-            await RecipeRepository(ApiService(baseUrl: ApiConstats.baseUrl))
-                .detectIngredientsFromImage(_image!);
+            await RecipeRepository().detectIngredientsFromImage(_image!);
 
         setState(() {
           _detectedIngredients = response.detectedIngredients;

@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:easycook/views/home/widgets/recipe_card.dart';
+import 'package:easycook/views/user/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:easycook/views/favorite/favorite_page.dart';
 import 'package:easycook/views/history/history_page.dart';
@@ -20,6 +21,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     const HomePage(),
     const FavoritePage(),
     const HistoryPage(),
+    const UserProfilePage(), // 4. sayfa eklendi
   ];
 
   void _onItemTapped(int index) {
@@ -46,6 +48,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
             label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
           )
         ],
         currentIndex: _selectedIndex,

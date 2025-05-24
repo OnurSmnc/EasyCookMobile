@@ -6,9 +6,9 @@ class FavoriteRepository {
   // This class will handle the favorite recipes
   // and their storage using Hive or any other local storage solution.
 
-  final ApiService _apiService;
+  final ApiService _api = ApiService();
 
-  FavoriteRepository(this._apiService);
+  FavoriteRepository();
 
   // Add a recipe to favorites
 
@@ -23,7 +23,7 @@ class FavoriteRepository {
       print('POST URL: ${ApiConstats.baseUrl}${ApiConstats.addFavorite}');
       print('Request body: $requestBody');
 
-      final response = await _apiService.post(
+      final response = await _api.post(
         ApiConstats.addFavorite,
         requestBody,
       );
@@ -49,7 +49,7 @@ class FavoriteRepository {
       print('POST URL: ${ApiConstats.baseUrl}${ApiConstats.addViewedRecipes}');
       print('Request body: $requestBody');
 
-      final response = await _apiService.post(
+      final response = await _api.post(
         ApiConstats.addViewedRecipes,
         requestBody,
       );
@@ -73,7 +73,7 @@ class FavoriteRepository {
 
   Future<List<Favorite>> getFavorites() async {
     try {
-      final response = await _apiService.get(ApiConstats.getFavorite);
+      final response = await _api.get(ApiConstats.getFavorite);
       print('favorite response: $response');
       final List<dynamic> data = response as List<dynamic>;
       print('favorite data: $data');
