@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:easycook/views/home/widgets/recipe_card.dart';
+import 'package:easycook/views/user/screens/user_profile_page.dart';
 import 'package:easycook/views/user/user_page.dart';
 import 'package:flutter/material.dart';
 import 'package:easycook/views/favorite/favorite_page.dart';
