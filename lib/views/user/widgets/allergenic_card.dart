@@ -1,19 +1,63 @@
+import 'dart:ffi';
+
+import 'package:easycook/core/data/models/allergenics/allergenic_response.dart';
+import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
+import 'package:easycook/core/data/repositories/ingredient_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/views/user/widgets/ingredient_selector.dart';
 import 'package:flutter/material.dart';
 import '../widgets/custom_chip.dart';
 
-class AllergiesCard extends StatelessWidget {
-  final List<String> allergies;
-  final Function(String) onAdd;
-  final Function(String) onRemove;
+class AllergiesCard extends StatefulWidget {
+  const AllergiesCard({super.key});
+  @override
+  State<AllergiesCard> createState() => _AllergiesCardState();
+}
 
-  const AllergiesCard({
-    Key? key,
-    required this.allergies,
-    required this.onAdd,
-    required this.onRemove,
-  }) : super(key: key);
+class _AllergiesCardState extends State<AllergiesCard> {
+  final ApiService _apiService = ApiService(baseUrl: ApiConstats.baseUrl);
+  late final IngredientRepository ingredientRepository;
+
+  List<IngredientData>? availableIngredients;
+  List<AllergenicResponse> allergies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    ingredientRepository = IngredientRepository();
+
+    getIngredients();
+    _fetchAllergies();
+  }
+
+  void getIngredients() async {
+    try {
+      final List<IngredientData> fetchedIngredients =
+          await ingredientRepository.getAllIngredients();
+      setState(() {
+        availableIngredients = fetchedIngredients;
+      });
+    } catch (e) {
+      // Handle error, e.g., show a snackbar or log the error
+      print('Error fetching ingredients: $e');
+    }
+    // This method can be used to fetch available ingredients if needed
+  }
+
+  void _fetchAllergies() async {
+    try {
+      final List<AllergenicResponse> fetchedAllergies =
+          await _apiService.get(ApiConstats.getAllergies);
+      setState(() {
+        allergies = fetchedAllergies;
+      });
+    } catch (e) {
+      // Handle error, e.g., show a snackbar or log the error
+      print('Error fetching allergies: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,10 +134,12 @@ class AllergiesCard extends StatelessWidget {
                     runSpacing: 8,
                     children: allergies
                         .map((allergy) => CustomChip(
-                              label: allergy,
+                              label: allergy.ingredients
+                                  .name, // Use the appropriate property for String
                               backgroundColor: Colors.red[100]!,
                               textColor: Colors.red[700]!,
-                              onDelete: () => _removeAllergy(context, allergy),
+                              onDelete: () => _removeAllergy(
+                                  context, allergy.ingredients.id),
                             ))
                         .toList(),
                   ),
@@ -110,10 +156,9 @@ class AllergiesCard extends StatelessWidget {
       context: context,
       title: 'Alerji Ekle',
       subtitle: 'Alerjik olduğunuz malzemeleri seçin',
-      currentList: allergies,
-      availableIngredients: UserProfileModel.availableIngredients,
+      currentList: availableIngredients ?? [],
+      availableIngredients: availableIngredients ?? [],
       onAdd: (ingredient) {
-        onAdd(ingredient);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('$ingredient alerjilerinize eklendi!'),
@@ -124,7 +169,7 @@ class AllergiesCard extends StatelessWidget {
     );
   }
 
-  void _removeAllergy(BuildContext context, String allergy) {
+  void _removeAllergy(BuildContext context, int allergy) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -152,5 +197,12 @@ class AllergiesCard extends StatelessWidget {
         );
       },
     );
+  }
+
+  void onRemove(int allergyId) {
+    setState(() {
+      allergies.removeWhere((allergy) => allergy.ingredients.id == allergyId);
+    });
+    // Optionally, call your API to remove the allergy from the backend here.
   }
 }

@@ -1,10 +1,11 @@
+import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
 import 'package:easycook/views/user/widgets/ingredient_selector.dart';
 import 'package:flutter/material.dart';
 import '../widgets/custom_chip.dart';
 
 class DislikesCard extends StatelessWidget {
-  final List<String> dislikes;
+  final List<IngredientData> dislikes;
   final Function(String) onAdd;
   final Function(String) onRemove;
 
@@ -90,10 +91,11 @@ class DislikesCard extends StatelessWidget {
                     runSpacing: 8,
                     children: dislikes
                         .map((dislike) => CustomChip(
-                              label: dislike,
+                              label: dislike.name,
                               backgroundColor: Colors.blue[100]!,
                               textColor: Colors.blue[700]!,
-                              onDelete: () => _removeDislike(context, dislike),
+                              onDelete: () =>
+                                  _removeDislike(context, dislike.name),
                             ))
                         .toList(),
                   ),
@@ -111,7 +113,7 @@ class DislikesCard extends StatelessWidget {
       title: 'Sevmediğim Malzeme Ekle',
       subtitle: 'Sevmediğiniz malzemeleri seçin',
       currentList: dislikes,
-      availableIngredients: UserProfileModel.availableIngredients,
+      availableIngredients: dislikes,
       onAdd: (ingredient) {
         onAdd(ingredient);
         ScaffoldMessenger.of(context).showSnackBar(

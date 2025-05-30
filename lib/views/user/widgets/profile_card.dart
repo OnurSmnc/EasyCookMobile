@@ -1,15 +1,73 @@
+import 'package:easycook/core/data/models/user/userInfo/get_user_info.dart';
+import 'package:easycook/core/data/models/user/userInfo/update_userInfo_request.dart';
 import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
+import 'package:easycook/core/data/repositories/user_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_service.dart';
 import 'package:flutter/material.dart';
 
-class ProfileInfoCard extends StatelessWidget {
-  final UserProfileModel userProfile;
-  final Function(String, String) onUpdate;
+class ProfileInfoCard extends StatefulWidget {
+  const ProfileInfoCard({Key? key}) : super(key: key);
 
-  const ProfileInfoCard({
-    Key? key,
-    required this.userProfile,
-    required this.onUpdate,
-  }) : super(key: key);
+  @override
+  State<ProfileInfoCard> createState() => _ProfileInfoCardState();
+}
+
+class _ProfileInfoCardState extends State<ProfileInfoCard> {
+  final ApiService _apiService = ApiService(baseUrl: ApiConstats.baseUrl);
+  late final UserRepository userRepository;
+
+  UserInfo? userProfile;
+  @override
+  void initState() {
+    super.initState();
+    userRepository = UserRepository(); // Pass the initialized ApiService
+
+    getUserProfile();
+  }
+
+  void getUserProfile() async {
+    try {
+      UserInfo userProfileFetched = await userRepository.getUserInfo();
+      setState(() {
+        userProfile = userProfileFetched;
+      });
+    } catch (e) {
+      // Print the error for debugging purposes.
+      print('Error fetching user profile: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to load user profile.')),
+        );
+      }
+    }
+  }
+
+  void updateUserProfile(UpdateUserInfo updatedProfile) async {
+    try {
+      await userRepository.updateUserProfile(updatedProfile);
+      setState(() {
+        userProfile = UserInfo(
+          UserId: userProfile?.UserId ?? '',
+          UserName: updatedProfile.FirstName ?? '',
+          Email: updatedProfile.Email ?? '',
+          fullName: ((updatedProfile.FirstName ?? '') +
+                  ' ' +
+                  (updatedProfile.lastName ?? ''))
+              .trim(),
+          lastName: updatedProfile.lastName ?? '',
+        );
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profil güncellendi!')),
+      );
+    } catch (e) {
+      print('Error updating user profile: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profil güncelleme başarısız.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +97,10 @@ class ProfileInfoCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16),
-            _buildInfoRow(Icons.person, 'Ad Soyad', userProfile.fullName),
+            _buildInfoRow(
+                Icons.person, 'Ad Soyad', userProfile?.fullName ?? ''),
             SizedBox(height: 12),
-            _buildInfoRow(Icons.email, 'E-posta', userProfile.email),
+            _buildInfoRow(Icons.email, 'E-posta', userProfile?.Email ?? ''),
           ],
         ),
       ),
@@ -82,9 +141,11 @@ class ProfileInfoCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         TextEditingController nameController =
-            TextEditingController(text: userProfile.fullName);
+            TextEditingController(text: userProfile?.UserName ?? '');
+        TextEditingController surnameController =
+            TextEditingController(text: userProfile?.lastName ?? '');
         TextEditingController emailController =
-            TextEditingController(text: userProfile.email);
+            TextEditingController(text: userProfile?.Email ?? '');
 
         return AlertDialog(
           title: Text('Bilgileri Düzenle'),
@@ -94,7 +155,15 @@ class ProfileInfoCard extends StatelessWidget {
               TextField(
                 controller: nameController,
                 decoration: InputDecoration(
-                  labelText: 'Ad Soyad',
+                  labelText: 'Ad',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: surnameController,
+                decoration: InputDecoration(
+                  labelText: 'Soyad',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -118,7 +187,8 @@ class ProfileInfoCard extends StatelessWidget {
               onPressed: () {
                 if (nameController.text.isNotEmpty &&
                     emailController.text.isNotEmpty) {
-                  onUpdate(nameController.text, emailController.text);
+                  onUpdate(nameController.text, surnameController.text,
+                      emailController.text);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Bilgiler güncellendi!')),
@@ -135,5 +205,19 @@ class ProfileInfoCard extends StatelessWidget {
         );
       },
     );
+  }
+
+  void onUpdate(String firstName, String surname, String email) async {
+    setState(() {
+      updateUserProfile(
+        UpdateUserInfo(
+          FirstName: firstName,
+          lastName: surname,
+          Email: email,
+        ),
+      );
+    });
+    // Optionally, you can call an API to update the user profile on the backend here.
+    // await userRepository.updateUserInfo(fullName, email);
   }
 }

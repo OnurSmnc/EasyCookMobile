@@ -42,15 +42,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProfileInfoCard(
-              userProfile: userProfile,
-              onUpdate: (newName, newEmail) {
-                setState(() {
-                  userProfile.fullName = newName;
-                  userProfile.email = newEmail;
-                });
-              },
-            ),
+            ProfileInfoCard(),
             SizedBox(height: 20),
             PasswordCard(),
             SizedBox(height: 20),
@@ -63,37 +55,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
               },
             ),
             SizedBox(height: 20),
-            AllergiesCard(
-              allergies: userProfile.allergicTo,
-              onAdd: (allergy) {
-                setState(() {
-                  if (!userProfile.allergicTo.contains(allergy)) {
-                    userProfile.allergicTo.add(allergy);
-                  }
-                });
-              },
-              onRemove: (allergy) {
-                setState(() {
-                  userProfile.allergicTo.remove(allergy);
-                });
-              },
-            ),
+            AllergiesCard(),
             SizedBox(height: 20),
-            DislikesCard(
-              dislikes: userProfile.dislikes,
-              onAdd: (dislike) {
-                setState(() {
-                  if (!userProfile.dislikes.contains(dislike)) {
-                    userProfile.dislikes.add(dislike);
-                  }
-                });
-              },
-              onRemove: (dislike) {
-                setState(() {
-                  userProfile.dislikes.remove(dislike);
-                });
-              },
-            ),
+            // DislikesCard(
+            //   dislikes: userProfile.dislikes.,
+            //   onAdd: (dislike) {
+            //     setState(() {
+            //       if (!userProfile.dislikes.contains(dislike)) {
+            //         userProfile.dislikes.add(dislike);
+            //       }
+            //     });
+            //   },
+            //   onRemove: (dislike) {
+            //     setState(() {
+            //       userProfile.dislikes.remove(dislike);
+            //     });
+            //   },
+            // ),
           ],
         ),
       ),

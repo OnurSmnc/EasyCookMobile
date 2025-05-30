@@ -1,3 +1,5 @@
+import 'package:easycook/core/data/models/allergenics/allergenic_response.dart';
+import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:flutter/material.dart';
 
 class IngredientSelectorDialog {
@@ -5,8 +7,8 @@ class IngredientSelectorDialog {
     required BuildContext context,
     required String title,
     required String subtitle,
-    required List<String> currentList,
-    required List<String> availableIngredients,
+    required List<IngredientData> currentList,
+    required List<IngredientData> availableIngredients,
     required Function(String) onAdd,
   }) {
     showDialog(
@@ -27,8 +29,8 @@ class IngredientSelectorDialog {
 class IngredientSelectorWidget extends StatefulWidget {
   final String title;
   final String subtitle;
-  final List<String> currentList;
-  final List<String> availableIngredients;
+  final List<IngredientData> currentList;
+  final List<IngredientData> availableIngredients;
   final Function(String) onAdd;
 
   const IngredientSelectorWidget({
@@ -47,8 +49,8 @@ class IngredientSelectorWidget extends StatefulWidget {
 
 class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
   late TextEditingController _searchController;
-  late List<String> filteredIngredients;
-  late List<String> availableIngredients;
+  late List<IngredientData> filteredIngredients;
+  late List<IngredientData> availableIngredients;
 
   @override
   void initState() {
@@ -71,7 +73,7 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
     setState(() {
       String query = _searchController.text.toLowerCase();
       filteredIngredients = availableIngredients
-          .where((ingredient) => ingredient.toLowerCase().contains(query))
+          .where((ingredient) => ingredient.name.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -166,14 +168,14 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                   : ListView.builder(
                       itemCount: filteredIngredients.length,
                       itemBuilder: (context, index) {
-                        String ingredient = filteredIngredients[index];
+                        IngredientData ingredient = filteredIngredients[index];
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: 2),
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: Colors.green[100],
                               child: Text(
-                                ingredient[0].toUpperCase(),
+                                ingredient.name[0].toUpperCase(),
                                 style: TextStyle(
                                   color: Colors.green[700],
                                   fontWeight: FontWeight.bold,
@@ -181,7 +183,7 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                               ),
                             ),
                             title: Text(
-                              ingredient,
+                              ingredient.name,
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                             trailing: Icon(
@@ -189,7 +191,7 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                               color: Colors.green[600],
                             ),
                             onTap: () {
-                              widget.onAdd(ingredient);
+                              widget.onAdd(ingredient.name);
                               Navigator.pop(context);
                             },
                           ),

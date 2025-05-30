@@ -11,6 +11,13 @@ class ApiConstats {
   static const String login = 'api/Auth/Login';
   static const String refreshToken = 'api/Auth/RefreshToken';
   static const String register = 'api/Auth/Register';
+  static const String changePassword = 'api/UserInfo/UpdateUserPassword';
+  static const String getUserInfo = 'api/UserInfo/GetUserInfo';
+  static const String updateUserInfo = 'api/UserInfo/UpdateUserInfo';
+  static const String getIngredients =
+      'api/Malzeme/GetAllIngredients'; // Endpoint to get all ingredients
+  static const String getAllergies =
+      'api/Alerjik/GetAllAllergenics'; // Endpoint to get all allergies
 
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds

@@ -1,7 +1,20 @@
+import 'package:easycook/core/data/models/user/password/password_request.dart';
+import 'package:easycook/core/data/repositories/user_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_exception.dart';
+import 'package:easycook/core/service/api_service.dart';
 import 'package:flutter/material.dart';
 
-class PasswordCard extends StatelessWidget {
+class PasswordCard extends StatefulWidget {
   const PasswordCard({Key? key}) : super(key: key);
+
+  @override
+  State<PasswordCard> createState() => _PasswordCardState();
+}
+
+class _PasswordCardState extends State<PasswordCard> {
+  final apiService = ApiService(baseUrl: ApiConstats.baseUrl);
+  late final userRepository = UserRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +143,7 @@ class PasswordCard extends StatelessWidget {
                   child: Text('İptal'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (currentPasswordController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Mevcut şifrenizi girin!')),
@@ -147,17 +160,31 @@ class PasswordCard extends StatelessWidget {
                       return;
                     }
 
-                    if (newPasswordController.text ==
-                        confirmPasswordController.text) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
+                    try {
+                      // Call the userRepository to change the password
+                      await userRepository.changePassword(
+                        PasswordRequest(
+                          activePassword: currentPasswordController.text,
+                          newPassword: newPasswordController.text,
+                          confirmPassword: confirmPasswordController.text,
+                        ),
+                      );
+
+                      // If successful, close the dialog and show success message
+                      if (mounted) {
+                        // Check if the widget is still mounted before interacting with context
+                        Navigator.pop(context);
                         SnackBar(
-                            content: Text('Şifre başarıyla değiştirildi!')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Şifreler eşleşmiyor!')),
-                      );
+                            content: Text('Şifre başarıyla değiştirildi!'));
+                      }
+                    } on ApiException catch (e) {
+                      if (mounted) {
+                        SnackBar(content: Text('Hata: ${e.message}'));
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        SnackBar(content: Text('Bilinmeyen bir hata oluştu'));
+                      }
                     }
                   },
                   child: Text('Değiştir'),
