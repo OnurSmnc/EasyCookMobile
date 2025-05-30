@@ -9,7 +9,7 @@ class IngredientSelectorDialog {
     required String subtitle,
     required List<IngredientData> currentList,
     required List<IngredientData> availableIngredients,
-    required Function(String) onAdd,
+    required Function(IngredientData) onAdd,
   }) {
     showDialog(
       context: context,
@@ -31,7 +31,7 @@ class IngredientSelectorWidget extends StatefulWidget {
   final String subtitle;
   final List<IngredientData> currentList;
   final List<IngredientData> availableIngredients;
-  final Function(String) onAdd;
+  final Function(IngredientData) onAdd;
 
   const IngredientSelectorWidget({
     Key? key,
@@ -191,7 +191,7 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                               color: Colors.green[600],
                             ),
                             onTap: () {
-                              widget.onAdd(ingredient.name);
+                              widget.onAdd(ingredient);
                               Navigator.pop(context);
                             },
                           ),

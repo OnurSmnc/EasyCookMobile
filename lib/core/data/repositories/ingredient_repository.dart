@@ -1,3 +1,4 @@
+import 'package:easycook/core/data/models/allergenics/allergenic_request.dart';
 import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
@@ -24,6 +25,19 @@ class IngredientRepository {
       }
     } catch (e) {
       print('Error in getAllIngredients: $e'); // Log the error
+      rethrow;
+    }
+  }
+
+  Future<dynamic> addIngredient(AllergyRequest request) async {
+    try {
+      final response = await _apiService.post(
+        ApiConstats.addAllergy,
+        request.toJson(),
+      );
+      return response;
+    } catch (e) {
+      print('Error in addIngredient: $e'); // Log the error
       rethrow;
     }
   }

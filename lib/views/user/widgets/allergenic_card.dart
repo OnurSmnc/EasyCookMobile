@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:easycook/core/data/models/allergenics/allergenic_request.dart';
 import 'package:easycook/core/data/models/allergenics/allergenic_response.dart';
 import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
@@ -28,7 +29,7 @@ class _AllergiesCardState extends State<AllergiesCard> {
     super.initState();
     ingredientRepository = IngredientRepository();
 
-    getIngredients();
+    // getIngredients();
     _fetchAllergies();
   }
 
@@ -36,8 +37,12 @@ class _AllergiesCardState extends State<AllergiesCard> {
     try {
       final List<IngredientData> fetchedIngredients =
           await ingredientRepository.getAllIngredients();
+
+      final allergyIds = allergies.map((a) => a.ingredients.id).toSet();
       setState(() {
-        availableIngredients = fetchedIngredients;
+        availableIngredients = fetchedIngredients
+            .where((ingredient) => !allergyIds.contains(ingredient.id))
+            .toList();
       });
     } catch (e) {
       // Handle error, e.g., show a snackbar or log the error
@@ -46,15 +51,18 @@ class _AllergiesCardState extends State<AllergiesCard> {
     // This method can be used to fetch available ingredients if needed
   }
 
-  void _fetchAllergies() async {
+  Future<void> _fetchAllergies() async {
     try {
-      final List<AllergenicResponse> fetchedAllergies =
-          await _apiService.get(ApiConstats.getAllergies);
+      final response = await _apiService.get(ApiConstats.getAllergies);
+      // response bir List<dynamic> ise:
+      final List<AllergenicResponse> fetchedAllergies = (response as List)
+          .map((e) => AllergenicResponse.fromJson(e))
+          .toList();
       setState(() {
         allergies = fetchedAllergies;
       });
+      getIngredients();
     } catch (e) {
-      // Handle error, e.g., show a snackbar or log the error
       print('Error fetching allergies: $e');
     }
   }
@@ -151,22 +159,81 @@ class _AllergiesCardState extends State<AllergiesCard> {
     );
   }
 
-  void _manageAllergies(BuildContext context) {
+  void _manageAllergies(BuildContext context) async {
     IngredientSelectorDialog.show(
       context: context,
       title: 'Alerji Ekle',
       subtitle: 'Alerjik olduğunuz malzemeleri seçin',
-      currentList: availableIngredients ?? [],
+      currentList: allergies.map((a) => a.ingredients).toList(),
       availableIngredients: availableIngredients ?? [],
-      onAdd: (ingredient) {
+      onAdd: (ingredient) async {
+        if (ingredient != null) {
+          _addAllergy(ingredient); // Sadece bu satır!
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Lütfen bir malzeme seçin.'),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  void _addAllergy(IngredientData ingredient) async {
+    try {
+      var response = await _apiService.post(
+        ApiConstats.addAllergy,
+        AllergyRequest(ingredientId: [ingredient.id]),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          allergies.add(AllergenicResponse(
+            id: response.data['id'],
+            userId: response
+                .data['userId'], // Assuming the response contains the new ID
+            ingredients: ingredient,
+            ingredientsId: ingredient.id,
+          ));
+        });
+        // Yeni alerjiyi listeye ekle
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$ingredient alerjilerinize eklendi!'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
+            elevation: 4,
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                Text(
+                  'Alerji eklendi!',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alerji eklenemedi!'),
             backgroundColor: Colors.red[600],
           ),
         );
-      },
-    );
+      }
+    } catch (e) {
+      print('Error adding allergy: $e');
+    }
   }
 
   void _removeAllergy(BuildContext context, int allergy) {

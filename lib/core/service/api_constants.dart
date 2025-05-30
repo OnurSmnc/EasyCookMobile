@@ -18,6 +18,8 @@ class ApiConstats {
       'api/Malzeme/GetAllIngredients'; // Endpoint to get all ingredients
   static const String getAllergies =
       'api/Alerjik/GetAllAllergenics'; // Endpoint to get all allergies
+  static const String addAllergy =
+      'api/Alerjik/AddAllergenics'; // Endpoint to add a new allergy
 
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds

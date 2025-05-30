@@ -6,7 +6,7 @@ import '../widgets/custom_chip.dart';
 
 class DislikesCard extends StatelessWidget {
   final List<IngredientData> dislikes;
-  final Function(String) onAdd;
+  final Function(IngredientData) onAdd;
   final Function(String) onRemove;
 
   const DislikesCard({
