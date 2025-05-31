@@ -1,8 +1,10 @@
 import 'package:easycook/core/data/models/register/register_request.dart';
+import 'package:easycook/core/data/models/register/register_response.dart';
 import 'package:easycook/core/data/repositories/auth_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
+import 'package:easycook/views/auth/calorie.dart';
 import 'package:easycook/views/auth/login.dart';
 import 'package:flutter/material.dart';
 
@@ -42,6 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
 
       final fullName = "$firstName $lastName";
+      final RegisterResponse registerResponse;
 
       try {
         final registerRequest = RegisterRequest(
@@ -52,7 +55,7 @@ class _RegisterPageState extends State<RegisterPage> {
           lastName: lastName,
           fullName: fullName,
         );
-        final registerResponse = await authRepository.register(registerRequest);
+        registerResponse = await authRepository.register(registerRequest);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -98,11 +101,13 @@ class _RegisterPageState extends State<RegisterPage> {
           duration: Duration(seconds: 3),
         ),
       );
-
       // Navigator.pop(context); // Giriş sayfasına dön
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(
+            builder: (context) => KaloriHedefPage(
+                  userId: registerResponse.userId,
+                )),
       );
     }
   }

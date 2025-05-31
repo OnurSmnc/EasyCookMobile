@@ -147,12 +147,13 @@ class ApiService {
     }
   }
 
-  Future<dynamic> delete(String endpoint,
+  Future<dynamic> delete(String endpoint, dynamic data,
       {Map<String, String>? headers}) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/$endpoint'),
-        headers: _getHeaders(headers), // ✅ Token otomatik eklenir
+        headers: _getHeaders(headers),
+        body: json.encode(data),
       );
       return _processResponse(response);
     } catch (e) {

@@ -21,6 +21,9 @@ class ApiConstats {
   static const String addAllergy =
       'api/Alerjik/AddAllergenics'; // Endpoint to add a new allergy
 
+  static const String deleteAllergy = 'api/Alerjik/RemoveAllergenics';
+  static const String addCalorie = 'api/UserInfo/CreateUserCalorie';
+
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds
 

@@ -2,13 +2,16 @@ import 'dart:ffi';
 
 import 'package:easycook/core/data/models/allergenics/allergenic_request.dart';
 import 'package:easycook/core/data/models/allergenics/allergenic_response.dart';
+import 'package:easycook/core/data/models/allergenics/remove_allergenic_request.dart';
 import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
+import 'package:easycook/core/data/repositories/allergies_repository.dart';
 import 'package:easycook/core/data/repositories/ingredient_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/views/user/widgets/ingredient_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import '../widgets/custom_chip.dart';
 
 class AllergiesCard extends StatefulWidget {
@@ -20,6 +23,7 @@ class AllergiesCard extends StatefulWidget {
 class _AllergiesCardState extends State<AllergiesCard> {
   final ApiService _apiService = ApiService(baseUrl: ApiConstats.baseUrl);
   late final IngredientRepository ingredientRepository;
+  late final AllergyRepository allergyRepository;
 
   List<IngredientData>? availableIngredients;
   List<AllergenicResponse> allergies = [];
@@ -28,8 +32,7 @@ class _AllergiesCardState extends State<AllergiesCard> {
   void initState() {
     super.initState();
     ingredientRepository = IngredientRepository();
-
-    // getIngredients();
+    allergyRepository = AllergyRepository(); // <-- Bunu ekle!
     _fetchAllergies();
   }
 
@@ -147,7 +150,9 @@ class _AllergiesCardState extends State<AllergiesCard> {
                               backgroundColor: Colors.red[100]!,
                               textColor: Colors.red[700]!,
                               onDelete: () => _removeAllergy(
-                                  context, allergy.ingredients.id),
+                                  context,
+                                  allergy.ingredients.id,
+                                  allergy.ingredients.name),
                             ))
                         .toList(),
                   ),
@@ -181,48 +186,22 @@ class _AllergiesCardState extends State<AllergiesCard> {
   }
 
   void _addAllergy(IngredientData ingredient) async {
+    int? id;
+    String? userId;
+    dynamic response;
     try {
-      var response = await _apiService.post(
-        ApiConstats.addAllergy,
-        AllergyRequest(ingredientId: [ingredient.id]),
-      );
+      response = await allergyRepository.addAlleryRequest(AllergyRequest(
+        ingredientId: [ingredient.id],
+      ));
 
-      if (response.statusCode == 200) {
-        setState(() {
-          allergies.add(AllergenicResponse(
-            id: response.data['id'],
-            userId: response
-                .data['userId'], // Assuming the response contains the new ID
-            ingredients: ingredient,
-            ingredientsId: ingredient.id,
-          ));
-        });
-        // Yeni alerjiyi listeye ekle
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.all(12),
-            elevation: 4,
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                Text(
-                  'Alerji eklendi!',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+      if (response != null &&
+          response['status'] == 200 &&
+          response['data'] is List &&
+          response['data'].isNotEmpty) {
+        final first = response['data'][0];
+        final allergenic = AllergenicResponse.fromJson(first);
+        id = allergenic.id;
+        userId = allergenic.userId;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -234,9 +213,45 @@ class _AllergiesCardState extends State<AllergiesCard> {
     } catch (e) {
       print('Error adding allergy: $e');
     }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        margin: EdgeInsets.all(16),
+        padding: EdgeInsets.all(12),
+        elevation: 4,
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            Text(
+              '${ingredient.name} alerjilere eklendi!',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green,
+      ),
+    );
+    setState(() {
+      allergies.add(
+        AllergenicResponse(
+            id: id ?? 0,
+            userId: userId ?? '',
+            ingredients: ingredient,
+            ingredientsId: ingredient.id),
+      );
+    });
+    availableIngredients?.removeWhere((i) => i.id == ingredient.id);
+
+    // Yeni alerjiyi listeye ekle
   }
 
-  void _removeAllergy(BuildContext context, int allergy) {
+  void _removeAllergy(BuildContext context, int allergy, String allergyName) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -250,11 +265,32 @@ class _AllergiesCardState extends State<AllergiesCard> {
               child: Text('İptal'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 onRemove(allergy);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$allergy alerjilerden çıkarıldı!')),
+                  SnackBar(
+                    duration: Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    margin: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(12),
+                    elevation: 4,
+                    content: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.remove_circle, color: Colors.white),
+                        Text(
+                          '$allergyName çıkarıldı!',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: Colors.red[600],
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red[600]),
@@ -266,9 +302,19 @@ class _AllergiesCardState extends State<AllergiesCard> {
     );
   }
 
-  void onRemove(int allergyId) {
+  void onRemove(int allergyId) async {
+    try {
+      await allergyRepository.removeAllergy(
+        RemevoAllergyRequest(ingredientId: allergyId),
+      );
+    } catch (e) {
+      print('Error removing allergy: $e');
+    }
     setState(() {
       allergies.removeWhere((allergy) => allergy.ingredients.id == allergyId);
+      availableIngredients?.add(
+        IngredientData(id: allergyId, name: 'Alerji Kaldırıldı', image: 'aaa'),
+      );
     });
     // Optionally, call your API to remove the allergy from the backend here.
   }

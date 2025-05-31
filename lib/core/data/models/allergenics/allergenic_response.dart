@@ -24,3 +24,22 @@ class AllergenicResponse {
     );
   }
 }
+
+class AllergenicResponseWrapper {
+  final int status;
+  final List<AllergenicResponse> data;
+
+  AllergenicResponseWrapper({
+    required this.status,
+    required this.data,
+  });
+
+  factory AllergenicResponseWrapper.fromJson(Map<String, dynamic> json) {
+    return AllergenicResponseWrapper(
+      status: json['status'] as int,
+      data: (json['data'] as List)
+          .map((e) => AllergenicResponse.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}

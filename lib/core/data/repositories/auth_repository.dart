@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:easycook/core/data/models/login/login_request.dart';
 import 'package:easycook/core/data/models/login/login_response.dart';
 import 'package:easycook/core/data/models/refreshToken/refreshToken_request.dart';
 import 'package:easycook/core/data/models/refreshToken/refreshToken_response.dart';
 import 'package:easycook/core/data/models/register/register_request.dart';
+import 'package:easycook/core/data/models/register/register_response.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 
@@ -22,14 +25,15 @@ class AuthRepository {
     }
   }
 
-  Future<String> register(RegisterRequest request) async {
+  Future<RegisterResponse> register(RegisterRequest request) async {
     try {
       final response = await _api.post(
         ApiConstats.register,
         request.toJson(),
       );
-
-      return "success"; // Genellikle register işlemi bir yanıt döndürmez, sadece başarılı olması yeterlidir.
+      final Map<String, dynamic> jsonMap =
+          response is String ? json.decode(response) : response;
+      return RegisterResponse.fromJson(jsonMap);
     } catch (e) {
       rethrow;
     }

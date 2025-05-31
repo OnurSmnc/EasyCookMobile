@@ -1,3 +1,4 @@
+import 'package:easycook/core/data/models/user/calorie/calorie_request.dart';
 import 'package:easycook/core/data/models/user/password/password_request.dart';
 import 'package:easycook/core/data/models/user/userInfo/get_user_info.dart';
 import 'package:easycook/core/data/models/user/userInfo/update_userInfo_request.dart';
@@ -28,6 +29,19 @@ class UserRepository {
       );
 
       return "success"; // Genellikle profil güncelleme işlemi bir yanıt döndürmez, sadece başarılı olması yeterlidir.
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> calorieRegister(CalorieRequest request) async {
+    try {
+      final response = await _api.post(
+        ApiConstats.addCalorie,
+        request.toJson(),
+      );
+
+      return "success"; // Genellikle register işlemi bir yanıt döndürmez, sadece başarılı olması yeterlidir.
     } catch (e) {
       rethrow;
     }
