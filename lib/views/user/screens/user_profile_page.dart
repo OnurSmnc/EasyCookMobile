@@ -1,4 +1,5 @@
 import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
+import 'package:easycook/core/data/repositories/user_repository.dart';
 import 'package:easycook/views/user/widgets/allergenic_card.dart';
 import 'package:easycook/views/user/widgets/calorie_card.dart';
 import 'package:easycook/views/user/widgets/dislike_card.dart';
@@ -15,7 +16,8 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   late UserProfileModel userProfile;
-
+  late final UserRepository userRepository;
+  late int _calorieGoal;
   @override
   void initState() {
     super.initState();
@@ -26,6 +28,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
       dislikes: ["Brokoli", "Patlıcan", "İstiridye"],
       dailyCalorieGoal: 2000,
     );
+    userRepository = UserRepository();
+    _fetchUserCalorieGoal();
+  }
+
+  void _fetchUserCalorieGoal() async {
+    try {
+      var response = await userRepository.getCalorie();
+      if (response.Message == "Success") {
+        _calorieGoal = response.Calorie as int;
+        setState(() {
+          userProfile.dailyCalorieGoal = _calorieGoal;
+        });
+      } else {
+        throw Exception('Kalori hedefi alınamadı: ${response.Message}');
+      }
+    } catch (e) {
+      print('Hata: $e');
+    }
   }
 
   @override
@@ -48,6 +68,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             SizedBox(height: 20),
             CalorieCard(
               currentGoal: userProfile.dailyCalorieGoal,
+              userRepository: userRepository,
               onUpdate: (newGoal) {
                 setState(() {
                   userProfile.dailyCalorieGoal = newGoal;

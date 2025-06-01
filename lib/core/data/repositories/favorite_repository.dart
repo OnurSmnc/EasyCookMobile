@@ -12,7 +12,7 @@ class FavoriteRepository {
 
   // Add a recipe to favorites
 
-  Future<bool> addFavoriteRecipe(int viewedRecipeId) async {
+  Future<FavoriteResponse> addFavoriteRecipe(int viewedRecipeId) async {
     DateTime createdDate = DateTime.now();
 
     try {
@@ -28,9 +28,7 @@ class FavoriteRepository {
         requestBody,
       );
 
-      print('Favorite recipe response: $response');
-
-      return response != null;
+      return FavoriteResponse.fromJson(response);
     } catch (e) {
       print('FavoriteRepository - addFavoriteRecipe error: $e');
       rethrow;
@@ -82,6 +80,20 @@ class FavoriteRepository {
     } catch (e) {
       print('FavoriteRepository - getFavorites error: $e');
       return [];
+    }
+  }
+
+  Future<FavoriteResponse> removeFavorite(RemoveFavoriteRequset request) async {
+    try {
+      final response = await _api.post(
+        ApiConstats.removeFavorite,
+        request.toJson(),
+      );
+
+      return FavoriteResponse.fromJson(response);
+    } catch (e) {
+      print('FavoriteRepository - removeFavorite error: $e');
+      rethrow;
     }
   }
 }

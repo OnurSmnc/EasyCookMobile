@@ -47,6 +47,29 @@ class UserRepository {
     }
   }
 
+  Future<GetCalorieResponse> getCalorie() async {
+    try {
+      final response = await _api.get(ApiConstats.getCalorie);
+      return GetCalorieResponse.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CalorieResponse> calorieUpdate(CalorieUpdateRequest request) async {
+    try {
+      final response = await _api.put(
+        ApiConstats.updateCalorie,
+        request.toJson(),
+      );
+
+      return CalorieResponse.fromJson(
+          response); // Genellikle register işlemi bir yanıt döndürmez, sadece başarılı olması yeterlidir.
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<UserInfo> getUserInfo() async {
     try {
       final response = await _api.get(ApiConstats.getUserInfo);

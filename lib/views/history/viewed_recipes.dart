@@ -2,6 +2,8 @@ import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/data/models/viewedHistory.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/core/data/models/Recipe.dart';
+import 'package:easycook/views/favorite/favorite_page.dart';
+import 'package:easycook/views/home/screens/home_recipe_page.dart';
 import 'package:flutter/material.dart';
 
 class ViewedRecipes extends StatefulWidget {
@@ -46,7 +48,10 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
               createdDate: viewedRecipe.viewedDate,
             );
 
-            return RecipeCard(recipe: recipe);
+            return RecipeCard(
+              recipe: recipe,
+              viewedRecipeId: viewedRecipe.id as int,
+            );
           },
         ),
       ),
@@ -56,8 +61,11 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
 
 class RecipeCard extends StatelessWidget {
   final Recipes recipe;
+  final int viewedRecipeId;
 
-  const RecipeCard({Key? key, required this.recipe}) : super(key: key);
+  const RecipeCard(
+      {Key? key, required this.recipe, required this.viewedRecipeId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,19 +151,19 @@ class RecipeCard extends StatelessWidget {
                 /// Button
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Add functionality
-                    },
-                    icon: const Icon(Icons.restaurant_menu),
-                    label: const Text("Tarifi Gör"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
+                  child: ElevatedButtonWidget(
+                      onPressed: () {
+                        // Navigate to the recipe detail page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeRecipePage(
+                                recipe: recipe, viewedRecipeId: viewedRecipeId),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.restaurant_menu),
+                      title: 'Tarife Git'),
                 )
               ],
             ),

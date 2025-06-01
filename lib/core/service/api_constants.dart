@@ -6,6 +6,7 @@ class ApiConstats {
   static const String detectIngredients = 'api/Malzeme/DetectIngredients';
   static const String addFavorite =
       'api/FavoriteFood/CreateFavoriteRecipe'; // Updated endpoint
+  static const String removeFavorite = 'api/FavoriteFood/RemoveFavoriteRecipe';
   static const String getFavorite = 'api/FavoriteFood/GetAllFavoriteFood';
   static const String getViewedHistory = 'api/ViewedRecipe/GetAllViewedHistory';
   static const String login = 'api/Auth/Login';
@@ -23,6 +24,8 @@ class ApiConstats {
 
   static const String deleteAllergy = 'api/Alerjik/RemoveAllergenics';
   static const String addCalorie = 'api/UserInfo/CreateUserCalorie';
+  static const String updateCalorie = 'api/UserInfo/UpdateUserCalorie';
+  static const String getCalorie = 'api/UserInfo/GetUserCalorie';
 
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds

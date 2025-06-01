@@ -1,14 +1,42 @@
+import 'package:easycook/core/data/models/user/calorie/calorie_request.dart';
+import 'package:easycook/core/data/repositories/user_repository.dart';
+import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_service.dart';
+import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CalorieCard extends StatelessWidget {
   final int currentGoal;
   final Function(int) onUpdate;
 
-  const CalorieCard({
+  final ApiService _apiService = ApiService(baseUrl: ApiConstats.baseUrl);
+  final UserRepository userRepository;
+
+  CalorieCard({
     Key? key,
     required this.currentGoal,
     required this.onUpdate,
+    required this.userRepository,
   }) : super(key: key);
+
+  @override
+  void initState() {
+    _fetchUserCalorieGoal();
+  }
+
+  void _fetchUserCalorieGoal() async {
+    try {
+      var response = await userRepository.getCalorie();
+      if (response.Message == "Success") {
+        onUpdate(response.Calorie as int);
+      } else {
+        throw Exception('Kalori hedefi alınamadı: ${response.Message}');
+      }
+    } catch (e) {
+      print('Hata: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +92,50 @@ class CalorieCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void updateGoal(BuildContext context, int newGoal) async {
+    try {
+      if (newGoal >= 1000 && newGoal <= 5000) {
+        var response = await userRepository.calorieUpdate(
+          CalorieUpdateRequest(CalorieCount: newGoal),
+        );
+
+        if (response.Message == "Success") {
+          onUpdate(newGoal);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              margin: EdgeInsets.all(16),
+              padding: EdgeInsets.all(12),
+              elevation: 4,
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.check, color: Colors.white),
+                  Text(
+                    'Kalori hedefiniz ${newGoal} olarak güncellendi!',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          throw Exception('Kalori hedefi güncellenemedi: ${response.Message}');
+        }
+      } else {
+        throw ArgumentError('Kalori hedefi 1000-5000 arasında olmalıdır.');
+      }
+    } catch (e) {
+      print('Hata: $e');
+    }
   }
 
   void _setCalorieGoal(BuildContext context) {
@@ -123,26 +195,14 @@ class CalorieCard extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: Text('İptal'),
             ),
-            ElevatedButton(
+            ElevatedButtonWidget(
+              title: 'Kaydet',
+              icon: Icon(Icons.save, color: Colors.white),
               onPressed: () {
                 int? newGoal = int.tryParse(calorieController.text);
-                if (newGoal != null && newGoal >= 1000 && newGoal <= 5000) {
-                  onUpdate(newGoal);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content:
-                            Text('Kalori hedefi güncellendi: $newGoal kcal')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'Lütfen 1000-5000 arasında geçerli bir değer girin!')),
-                  );
-                }
+                updateGoal(context, newGoal as int? ?? currentGoal);
+                Navigator.pop(context);
               },
-              child: Text('Kaydet'),
             ),
           ],
         );

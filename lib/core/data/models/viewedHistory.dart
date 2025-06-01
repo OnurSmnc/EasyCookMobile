@@ -5,7 +5,7 @@ class ViewedRecipeHistoryItem {
   final String url;
   final String ingredients;
   final String recipeFood;
-
+  final int? id;
   ViewedRecipeHistoryItem({
     required this.viewedDate,
     required this.recipeId,
@@ -13,6 +13,7 @@ class ViewedRecipeHistoryItem {
     required this.url,
     required this.ingredients,
     required this.recipeFood,
+    this.id,
   });
 
   factory ViewedRecipeHistoryItem.fromJson(Map<String, dynamic> json) {
@@ -23,6 +24,7 @@ class ViewedRecipeHistoryItem {
       url: json['url'],
       ingredients: json['ingredients'],
       recipeFood: json['recipeFood'],
+      id: json['id'] != null ? json['id'] as int : null,
     );
   }
 }

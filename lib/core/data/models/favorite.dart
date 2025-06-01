@@ -22,6 +22,51 @@ class Favorite {
   }
 }
 
+class RemoveFavoriteRequset {
+  final int favoriteId;
+
+  RemoveFavoriteRequset({
+    required this.favoriteId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'favoriteId': favoriteId,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'RemoveFavoriteRequset(favoriteId: $favoriteId)';
+  }
+}
+
+class FavoriteResponse {
+  final String message;
+  final int? favoriteId;
+  final int viewedRecipesId;
+
+  FavoriteResponse({
+    required this.message,
+    this.favoriteId,
+    required this.viewedRecipesId,
+  });
+
+  factory FavoriteResponse.fromJson(Map<String, dynamic> json) {
+    return FavoriteResponse(
+      message: json['message'] as String,
+      favoriteId: json['favoriteId'] != null ? json['favoriteId'] as int : null,
+      viewedRecipesId:
+          json['viewedRecipesId'] != null ? json['viewedRecipesId'] as int : 0,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'RemoveFavoriteResponse(message: $message, favoriteId: $favoriteId, viewedRecipesId: $viewedRecipesId)';
+  }
+}
+
 class ViewedRecipe {
   final String viewedDate;
   final int recipeId;
@@ -29,6 +74,7 @@ class ViewedRecipe {
   final String url;
   final String ingredients;
   final String recipeFood;
+  final int id;
 
   ViewedRecipe({
     required this.viewedDate,
@@ -37,6 +83,7 @@ class ViewedRecipe {
     required this.url,
     required this.ingredients,
     required this.recipeFood,
+    required this.id,
   });
 
   factory ViewedRecipe.fromJson(Map<String, dynamic> json) {
@@ -47,6 +94,7 @@ class ViewedRecipe {
       url: json['url'],
       ingredients: json['ingredients'],
       recipeFood: json['recipeFood'],
+      id: json['id'] != null ? json['id'] as int : 0,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:easycook/core/data/models/favorite.dart';
 import 'package:easycook/core/data/repositories/favorite_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
@@ -6,12 +7,50 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:easycook/core/data/models/recipes.dart';
 
-class HomeRecipePage extends StatelessWidget {
+class HomeRecipePage extends StatefulWidget {
   final Recipes recipe;
   final int viewedRecipeId;
-  const HomeRecipePage(
-      {Key? key, required this.recipe, required this.viewedRecipeId})
-      : super(key: key);
+  final int? favoriteRecipeId;
+  final FavoriteRepository? favoriteRepository;
+
+  const HomeRecipePage({
+    Key? key,
+    required this.recipe,
+    required this.viewedRecipeId,
+    this.favoriteRecipeId,
+    this.favoriteRepository,
+  }) : super(key: key);
+
+  @override
+  State<HomeRecipePage> createState() => _HomeRecipePageState();
+}
+
+class _HomeRecipePageState extends State<HomeRecipePage> {
+  List<Favorite> _favoriteRecipes = [];
+  int? _favoriteId;
+
+  late final favoriteRepo;
+  @override
+  void initState() {
+    super.initState();
+    favoriteRepo = widget.favoriteRepository ?? FavoriteRepository();
+    _fetchFavorite();
+  }
+
+  Future<void> _fetchFavorite() async {
+    _favoriteRecipes = await favoriteRepo.getFavorites();
+    if (!mounted) return;
+    setState(() {
+      try {
+        final match = _favoriteRecipes.firstWhere(
+          (fav) => fav.viewedRecipesId == widget.viewedRecipeId,
+        );
+        _favoriteId = match.id;
+      } catch (e) {
+        _favoriteId = null;
+      }
+    });
+  }
 
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
@@ -22,27 +61,84 @@ class HomeRecipePage extends StatelessWidget {
     }
   }
 
+  void toggleFavorite(BuildContext context) async {
+    if (_favoriteId != null) {
+      var response = await favoriteRepo.removeFavorite(
+        RemoveFavoriteRequset(favoriteId: _favoriteId!),
+      );
+      if (response != null && response.message == "Success") {
+        setState(() {
+          _favoriteId = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
+            elevation: 4,
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.remove_circle, color: Colors.white),
+                Text(
+                  'Favorilerden çıkarıldı!',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red[600],
+          ),
+        );
+      }
+    } else {
+      var response =
+          await favoriteRepo?.addFavoriteRecipe(widget.viewedRecipeId);
+      if (response != null && response.message == "Success") {
+        setState(() {
+          _favoriteId = response.favoriteId; // Bunu response'a göre uyarlayın
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
+            elevation: 4,
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.favorite, color: Colors.white),
+                Text(
+                  'Favorilere eklendi!',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green[600],
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final ingredients = recipe.ingredients is String
-        ? (recipe.ingredients as String).split(',')
-        : (recipe.ingredients as List).cast<String>();
+    final ingredients = (widget.recipe.ingredients).split(',');
 
-    final List<String> recipeFood;
-
-// Properly handle the recipe preparation steps whether they're in string or list format
-    if (recipe.recipeFood is String) {
-      // Split the string by periods and filter out any empty strings
-      recipeFood = (recipe.recipeFood as String)
-          .split('.')
-          .where((step) => step.trim().isNotEmpty)
-          .map((step) => step.trim())
-          .toList();
-    } else {
-      // Cast to List<String> if it's already a list
-      recipeFood = (recipe.recipeFood as List).cast<String>();
-    }
+    final List<String> recipeFood = (widget.recipe.recipeFood)
+        .split('.')
+        .where((step) => step.trim().isNotEmpty)
+        .map((step) => step.trim())
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -59,7 +155,6 @@ class HomeRecipePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Geçici resim eklendi
             Container(
               height: 200,
               width: double.infinity,
@@ -71,10 +166,9 @@ class HomeRecipePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
             Center(
               child: Text(
-                recipe.title,
+                widget.recipe.title,
                 style: TextStyle(color: Colors.black, fontSize: 24),
               ),
             ),
@@ -89,7 +183,6 @@ class HomeRecipePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             ...ingredients.map((item) => Text("- $item")).toList(),
             const SizedBox(height: 12),
             Divider(color: Colors.orange[500]),
@@ -113,9 +206,9 @@ class HomeRecipePage extends StatelessWidget {
             const SizedBox(height: 12),
             Divider(color: Colors.orange[500]),
             const SizedBox(height: 12),
-            if (recipe.url != null && recipe.url.isNotEmpty)
+            if (widget.recipe.url.isNotEmpty)
               TextButton(
-                onPressed: () => _launchURL(recipe.url),
+                onPressed: () => _launchURL(widget.recipe.url),
                 child: const Text("Tarif Kaynağına Git"),
               ),
             const SizedBox(height: 80),
@@ -133,24 +226,27 @@ class HomeRecipePage extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButtonWidget(
-                onPressed: () async {
-                  await FavoriteRepository().addFavoriteRecipe(viewedRecipeId);
-                },
-                icon: const Icon(Icons.favorite_border),
-                title: "Favorilere Ekle",
-              ),
-              const SizedBox(width: 12),
-              ElevatedButtonWidget(
+              IconButton(
                 onPressed: () {
-                  print("Yorum yapıldı");
+                  toggleFavorite(context);
                 },
-                icon: const Icon(Icons.comment),
-                title: "Yorum Yap",
+                icon: _favoriteId != null
+                    ? const Icon(Icons.favorite, color: Colors.red, size: 28)
+                    : const Icon(Icons.favorite_border, size: 28),
+                tooltip: _favoriteId != null
+                    ? "Favorilerden Kaldır"
+                    : "Favorilere Ekle",
+              ),
+              IconButton(
+                onPressed: () {
+                  // Navigator.pushNamed(context, '/comment', arguments: widget.viewedRecipeId);
+                },
+                icon: const Icon(Icons.comment_outlined, size: 28),
+                tooltip: "Yorum Yap",
               ),
             ],
           ),

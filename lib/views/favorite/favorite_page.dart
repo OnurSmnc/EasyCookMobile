@@ -1,9 +1,11 @@
 import 'package:easycook/core/data/models/favorite.dart';
+import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/data/repositories/favorite_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/utils/bottomNavigationBar.dart';
 import 'package:easycook/core/data/models/Recipe.dart';
+import 'package:easycook/views/home/screens/home_recipe_page.dart';
 import 'package:flutter/material.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -16,18 +18,21 @@ class FavoritePage extends StatefulWidget {
 class _FavoritePageState extends State<FavoritePage> {
   List<Favorite> _favoriteRecipes = [];
   List<bool> _tappedState = [];
+  final ApiService _api = ApiService(baseUrl: ApiConstats.baseUrl);
+  late final favoriteRepository;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    favoriteRepository = FavoriteRepository();
     _fetchFavorite();
   }
 
   Future<void> _fetchFavorite() async {
     final repo = FavoriteRepository();
     final favorite = await repo.getFavorites();
-
+    if (!mounted) return;
     setState(() {
       _favoriteRecipes = favorite;
       _tappedState = List.generate(
@@ -37,21 +42,33 @@ class _FavoritePageState extends State<FavoritePage> {
     });
   }
 
-  void _onRecipeTapped(int index) {
+  void _onRecipeTapped(int index) async {
     setState(() {
-      _tappedState[index] = !_tappedState[index]; // Toggle the tapped state
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RecipeDetailPage(
-              recipe: Recipe(
-            name: _favoriteRecipes[index].viewedRecipe.title,
-            imageUrl: "",
-            ingredients: [_favoriteRecipes[index].viewedRecipe.ingredients],
-            preparationTime: "30 dakika",
-          )),
+      _tappedState[index] = true; // Sadece tıklananı beyaz yap
+    });
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeRecipePage(
+          viewedRecipeId: _favoriteRecipes[index].viewedRecipesId
+              as int, // Use non-nullable recipeId
+          recipe: Recipes(
+            title: _favoriteRecipes[index].viewedRecipe.title,
+            id: _favoriteRecipes[index].viewedRecipe.recipeId,
+            ingredients: _favoriteRecipes[index].viewedRecipe.ingredients,
+            url: _favoriteRecipes[index].viewedRecipe.url,
+            recipeFood: _favoriteRecipes[index].viewedRecipe.recipeFood,
+          ),
+          favoriteRecipeId: _favoriteRecipes[index].id,
+          favoriteRepository: favoriteRepository,
         ),
-      );
+      ),
+    );
+
+    // Geri dönünce tüm state'i sıfırla
+    setState(() {
+      _tappedState = List.generate(_favoriteRecipes.length, (i) => false);
     });
   }
 
@@ -124,8 +141,8 @@ class _FavoritePageState extends State<FavoritePage> {
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: _tappedState[index]
-                                  ? Colors.black
-                                  : Colors.white),
+                                  ? Colors.white
+                                  : Colors.black),
                         ),
                         subtitle: Text("Hazırlık Süresi: 30 dakika}"),
                         trailing: Icon(Icons.favorite, color: Colors.orange),
