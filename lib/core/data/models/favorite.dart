@@ -3,12 +3,14 @@ class Favorite {
   final String userId;
   final int? viewedRecipesId;
   final ViewedRecipe viewedRecipe;
+  final int recipeId;
 
   Favorite({
     required this.id,
     required this.userId,
     required this.viewedRecipesId,
     required this.viewedRecipe,
+    required this.recipeId,
   });
 
   factory Favorite.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,7 @@ class Favorite {
       viewedRecipesId: json['viewedRecipesId'] ?? 0,
       viewedRecipe: ViewedRecipe.fromJson(json[
           'viewedRecipes']), // Burada ViewedRecipe modelini doldurmalısınız
+      recipeId: json['recipeId'] ?? 0,
     );
   }
 }
@@ -45,11 +48,13 @@ class FavoriteResponse {
   final String message;
   final int? favoriteId;
   final int viewedRecipesId;
+  final int recipeId;
 
   FavoriteResponse({
     required this.message,
     this.favoriteId,
     required this.viewedRecipesId,
+    required this.recipeId,
   });
 
   factory FavoriteResponse.fromJson(Map<String, dynamic> json) {
@@ -58,12 +63,13 @@ class FavoriteResponse {
       favoriteId: json['favoriteId'] != null ? json['favoriteId'] as int : null,
       viewedRecipesId:
           json['viewedRecipesId'] != null ? json['viewedRecipesId'] as int : 0,
+      recipeId: json['recipeId'] != null ? json['recipeId'] as int : 0,
     );
   }
 
   @override
   String toString() {
-    return 'RemoveFavoriteResponse(message: $message, favoriteId: $favoriteId, viewedRecipesId: $viewedRecipesId)';
+    return 'RemoveFavoriteResponse(message: $message, favoriteId: $favoriteId, viewedRecipesId: $viewedRecipesId, recipeId: $recipeId)';
   }
 }
 

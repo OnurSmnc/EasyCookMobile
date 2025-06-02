@@ -2,6 +2,7 @@ import 'package:easycook/core/data/models/favorite.dart';
 import 'package:easycook/core/data/repositories/favorite_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
+import 'package:easycook/views/comment/screens/commentPage.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,7 +44,7 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
     setState(() {
       try {
         final match = _favoriteRecipes.firstWhere(
-          (fav) => fav.viewedRecipesId == widget.viewedRecipeId,
+          (fav) => fav.recipeId == widget.recipe.id,
         );
         _favoriteId = match.id;
       } catch (e) {
@@ -96,8 +97,8 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
         );
       }
     } else {
-      var response =
-          await favoriteRepo?.addFavoriteRecipe(widget.viewedRecipeId);
+      var response = await favoriteRepo?.addFavoriteRecipe(
+          widget.viewedRecipeId, widget.recipe.id);
       if (response != null && response.message == "Success") {
         setState(() {
           _favoriteId = response.favoriteId; // Bunu response'a göre uyarlayın
@@ -243,7 +244,18 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
               ),
               IconButton(
                 onPressed: () {
-                  // Navigator.pushNamed(context, '/comment', arguments: widget.viewedRecipeId);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => CommentsModalPopup(
+                      comments: [], // Gerçek yorumları burada ver
+                      recipeId: widget.recipe.id,
+                      recipeTitle: widget.recipe.title,
+                      viewedRecipesId: widget.viewedRecipeId,
+                      parentContext: context,
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.comment_outlined, size: 28),
                 tooltip: "Yorum Yap",

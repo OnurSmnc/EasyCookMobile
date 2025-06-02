@@ -12,12 +12,14 @@ class FavoriteRepository {
 
   // Add a recipe to favorites
 
-  Future<FavoriteResponse> addFavoriteRecipe(int viewedRecipeId) async {
+  Future<FavoriteResponse> addFavoriteRecipe(
+      int viewedRecipeId, int recipeId) async {
     DateTime createdDate = DateTime.now();
 
     try {
       final Map<String, dynamic> requestBody = {
         'viewedRecipesId': viewedRecipeId,
+        'recipeId': recipeId,
       };
 
       print('POST URL: ${ApiConstats.baseUrl}${ApiConstats.addFavorite}');
