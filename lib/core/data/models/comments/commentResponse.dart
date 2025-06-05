@@ -5,6 +5,7 @@ class GetCommentResponse {
   final String? image; // nullable
   final String nickName;
   final double score;
+  final DateTime createdAt;
 
   GetCommentResponse({
     required this.recipeId,
@@ -13,6 +14,7 @@ class GetCommentResponse {
     required this.image,
     required this.nickName,
     required this.score,
+    required this.createdAt,
   });
 
   factory GetCommentResponse.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,8 @@ class GetCommentResponse {
       image: json['image'], // nullable
       nickName: json['nickName'] ?? '',
       score: (json['score'] ?? 0).toDouble(),
+      createdAt: DateTime.parse(
+          json['createdDate'] ?? DateTime.now().toIso8601String()),
     );
   }
 }

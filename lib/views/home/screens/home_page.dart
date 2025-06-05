@@ -107,17 +107,21 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButtonWidget(
-                    icon: Icon(Icons.photo_library),
-                    title: "Galeriden Seç",
-                    onPressed: () => _pickImage(ImageSource.gallery),
+                  Expanded(
+                    child: ElevatedButtonWidget(
+                      icon: Icon(Icons.photo_library),
+                      title: "Galeriden Seç",
+                      onPressed: () => _pickImage(ImageSource.gallery),
+                    ),
                   ),
-                  ElevatedButtonWidget(
-                    icon: Icon(Icons.camera_alt_sharp),
-                    title: "Fotoğraf Çek",
-                    onPressed: () => _pickImage(ImageSource.camera),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButtonWidget(
+                      icon: Icon(Icons.camera_alt_sharp),
+                      title: "Fotoğraf Çek",
+                      onPressed: () => _pickImage(ImageSource.camera),
+                    ),
                   ),
                 ],
               ),

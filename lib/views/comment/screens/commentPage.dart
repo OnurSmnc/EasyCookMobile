@@ -89,9 +89,9 @@ class _CommentsModalPopupState extends State<CommentsModalPopup> {
     var response = await _commentRepository.addComment(comment);
     if (response != null && response.message == "Success") {
       setState(() {
-        _comments.add(response);
         _commentController.clear();
         _currentRating = 0;
+        _fetchComments();
       });
       showTopSnackBar(
         context,
@@ -123,10 +123,16 @@ class _CommentsModalPopupState extends State<CommentsModalPopup> {
     // setState(() {});
     try {
       final comments = await _commentRepository.getComments(widget.recipeId);
+      for (var com in comments) {
+        print('Yorum: ${com.comment} tarih: ${com.createdAt}');
+      }
       setState(() {
         _fetchedComments.clear();
         _fetchedComments.addAll(comments);
       });
+      for (var comment in _fetchedComments) {
+        print('Yorum: ${comment.comment} tarih: ${comment.createdAt}');
+      }
     } catch (e) {
       // Hata durumunda kullanıcıya bilgi verebilirsiniz
       showTopSnackBar(
@@ -138,21 +144,6 @@ class _CommentsModalPopupState extends State<CommentsModalPopup> {
         ),
       );
     } catch (e) {}
-  }
-
-  String _formatTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays} gün önce';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} saat önce';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} dakika önce';
-    } else {
-      return 'Az önce';
-    }
   }
 
   @override
@@ -231,15 +222,14 @@ class _CommentsModalPopupState extends State<CommentsModalPopup> {
 
           // Yorumlar listesi
           Expanded(
-            child: widget.comments.isEmpty
+            child: _fetchedComments.isEmpty
                 ? CommentEmptyState()
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
-                    itemCount: widget.comments.length,
+                    itemCount: _fetchedComments.length,
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 16),
                     itemBuilder: (context, index) {
-                      final comment = widget.comments[index];
                       // Burada sadece yorum gösterimi olmalı!
                       return CommentItem(comment: _fetchedComments[index]);
                     },

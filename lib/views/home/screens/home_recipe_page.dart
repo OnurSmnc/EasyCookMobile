@@ -1,5 +1,7 @@
 import 'package:easycook/core/data/models/favorite.dart';
+import 'package:easycook/core/data/models/recipes/recipeAdd/RecipeAddRequest.dart';
 import 'package:easycook/core/data/repositories/favorite_repository.dart';
+import 'package:easycook/core/data/repositories/recipe_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/views/comment/screens/commentPage.dart';
@@ -29,12 +31,14 @@ class HomeRecipePage extends StatefulWidget {
 class _HomeRecipePageState extends State<HomeRecipePage> {
   List<Favorite> _favoriteRecipes = [];
   int? _favoriteId;
+  late final RecipeRepository _recipeRepository;
 
   late final favoriteRepo;
   @override
   void initState() {
     super.initState();
     favoriteRepo = widget.favoriteRepository ?? FavoriteRepository();
+    _recipeRepository = RecipeRepository();
     _fetchFavorite();
   }
 
@@ -59,6 +63,69 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       throw 'URL açılamıyor: $url';
+    }
+  }
+
+  Future<void> _madeRecipe(
+      BuildContext context, RecipeAddRequest request) async {
+    try {
+      final response = await _recipeRepository.madeRecipe(request);
+      if (response.message == "Success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
+            elevation: 4,
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.verified, color: Colors.white),
+                Text(
+                  'Yapılan tariflere eklendi!',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
+            elevation: 4,
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.warning, color: Colors.white),
+                Text(
+                  'Günlük kalori hedefini aşıyor!',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.yellow[800],
+          ),
+        );
+      }
+    } catch (e) {
+      print("Hata oluştu: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hata oluştu: $e')),
+      );
     }
   }
 
@@ -207,12 +274,26 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
             const SizedBox(height: 12),
             Divider(color: Colors.orange[500]),
             const SizedBox(height: 12),
-            if (widget.recipe.url.isNotEmpty)
-              TextButton(
-                onPressed: () => _launchURL(widget.recipe.url),
-                child: const Text("Tarif Kaynağına Git"),
-              ),
-            const SizedBox(height: 80),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButtonWidget(
+                    onPressed: () async {
+                      await _madeRecipe(
+                          context,
+                          RecipeAddRequest(
+                              recipeId: widget.recipe.id,
+                              viewedRecipeId: widget.viewedRecipeId));
+                    },
+                    title: 'Yap',
+                    icon: Icon(Icons.food_bank)),
+                if (widget.recipe.url.isNotEmpty)
+                  TextButton(
+                    onPressed: () => _launchURL(widget.recipe.url),
+                    child: const Text("Tarif Kaynağına Git"),
+                  ),
+              ],
+            )
           ],
         ),
       ),

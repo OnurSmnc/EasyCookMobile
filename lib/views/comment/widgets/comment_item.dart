@@ -10,6 +10,24 @@ class CommentItem extends StatelessWidget {
     required this.comment,
   });
 
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final localDateTime = dateTime.toLocal();
+    final difference = now.difference(localDateTime);
+
+    if (difference.isNegative) {
+      return 'Az önce';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays} gün önce';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} saat önce';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} dakika önce';
+    } else {
+      return 'Az önce';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -43,8 +61,27 @@ class CommentItem extends StatelessWidget {
                           fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(width: 8),
                   Text(
-                    'formatTime(comment.createdAt)',
+                    '${_formatTime(comment.createdAt)}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      ...List.generate(
+                        comment.score.floor(),
+                        (index) => Icon(
+                          Icons.star,
+                          color: Colors.orange[300],
+                          size: 18,
+                        ),
+                      ),
+                      if (comment.score - comment.score.floor() >= 0.5)
+                        Icon(
+                          Icons.star_half,
+                          color: Colors.orange[300],
+                          size: 18,
+                        ),
+                    ],
                   ),
                 ],
               ),
