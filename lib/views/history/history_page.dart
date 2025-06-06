@@ -1,10 +1,13 @@
+import 'package:easycook/core/data/models/recipes/recipeAdd/get_recipe_made_response.dart';
 import 'package:easycook/core/data/models/viewedHistory.dart';
+import 'package:easycook/core/data/repositories/recipe_repository.dart';
 import 'package:easycook/core/data/repositories/viewedHistory_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/views/history/used_images.dart';
 import 'package:easycook/views/history/viewed_recipes.dart';
+import 'package:easycook/views/history/yap%C4%B1lan_tarifler.dart';
 import 'package:flutter/material.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -18,10 +21,13 @@ class _HistoryPageState extends State<HistoryPage> {
   List<ViewedRecipeHistoryItem> _viewedRecipeHistory = [];
 
   List<bool> _tappedState = [];
+  List<RecipeMadedGetResponse> _madedRecipesList = [];
+  late final RecipeRepository _recipeRepository;
 
   @override
   void initState() {
     super.initState();
+    _recipeRepository = RecipeRepository();
     _fetchViewedHistory();
   }
 
@@ -37,6 +43,20 @@ class _HistoryPageState extends State<HistoryPage> {
         (index) => false,
       );
     });
+  }
+
+  Future<void> _fetchMadedRecipes() async {
+    try {
+      final responseMadedRecipe = await _recipeRepository.getMadedRecipeAsync();
+      if (responseMadedRecipe != null) {
+        setState(() {
+          _madedRecipesList.clear();
+          _madedRecipesList.addAll(responseMadedRecipe);
+        });
+      }
+    } catch (e) {
+      print('hata: $e');
+    }
   }
 
   void _onRecipeTapped(int index) {
@@ -111,18 +131,55 @@ class _HistoryPageState extends State<HistoryPage> {
                     ),
                   ),
                 ),
+                Divider(
+                  color: Colors.orange,
+                ),
+                // İkinci buton
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: _selectedIndex == 2
+                          ? Colors.yellow
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ElevatedButtonWidget(
+                      onPressed: () {
+                        setState(() {
+                          _selectedIndex = 2;
+                          _fetchMadedRecipes();
+                        });
+                      },
+                      title: "Yapılan Tarifler",
+                      icon: const Icon(Icons.photo),
+                    ),
+                  ),
+                ),
               ],
             ),
             Divider(
               color: Colors.black,
             ),
             Expanded(
-              child: _selectedIndex == 0
-                  ? ViewedRecipes(
+              child: () {
+                switch (_selectedIndex) {
+                  case 0:
+                    return ViewedRecipes(
                       selectedIndex: _selectedIndex,
                       suggestedRecipes: _viewedRecipeHistory,
-                    )
-                  : const UsedImages(),
+                    );
+                  case 1:
+                    return const UsedImages();
+                  case 2:
+                    return MadedRecipes(
+                      selectedIndex: _selectedIndex,
+                      recipeMadedList: _madedRecipesList,
+                    ); // 2 için yeni bir widget koy
+                  default:
+                    return const SizedBox(); // varsayılan boş bir widget
+                }
+              }(),
             ),
           ],
         ),

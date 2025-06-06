@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:easycook/core/data/models/recipeapiresponse.dart';
 import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/data/models/recipes/recipeAdd/RecipeAddRequest.dart';
+import 'package:easycook/core/data/models/recipes/recipeAdd/get_recipe_made_response.dart';
 import 'package:easycook/core/data/models/recipes/recipeAdd/recipeAddResponse.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
@@ -38,6 +39,24 @@ class RecipeRepository {
       if (response != null) {
         final data = response is String ? jsonDecode(response) : response;
         return RecipeAddResponse.fromJson(data);
+      } else {
+        throw Exception('API error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  Future<List<RecipeMadedGetResponse>> getMadedRecipeAsync() async {
+    try {
+      final response = await _api.get(ApiConstats.getRecipeMaded);
+
+      if (response != null) {
+        final data = response is String ? jsonDecode(response) : response;
+        final list = (data as List)
+            .map((item) => RecipeMadedGetResponse.fromJson(item))
+            .toList();
+        return list.reversed.toList();
       } else {
         throw Exception('API error: ${response.statusCode}');
       }

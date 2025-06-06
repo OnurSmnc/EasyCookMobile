@@ -5,6 +5,8 @@ import 'package:easycook/core/data/models/Recipe.dart';
 import 'package:easycook/views/favorite/favorite_page.dart';
 import 'package:easycook/views/home/screens/home_recipe_page.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class ViewedRecipes extends StatefulWidget {
   final int selectedIndex;
@@ -51,6 +53,7 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
             return RecipeCard(
               recipe: recipe,
               viewedRecipeId: viewedRecipe.id as int,
+              dateTitle: 'Görüntülenme Tarihi',
             );
           },
         ),
@@ -62,10 +65,25 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
 class RecipeCard extends StatelessWidget {
   final Recipes recipe;
   final int viewedRecipeId;
+  final String dateTitle;
 
   const RecipeCard(
-      {Key? key, required this.recipe, required this.viewedRecipeId})
+      {Key? key,
+      required this.recipe,
+      required this.viewedRecipeId,
+      required this.dateTitle})
       : super(key: key);
+
+  String formatDate(String? dateString) {
+    if (dateString == null) return "Tarih yok";
+
+    try {
+      DateTime date = DateTime.parse(dateString);
+      return DateFormat("d MMMM y HH:mm", "tr_TR").format(date);
+    } catch (e) {
+      return "$e";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,13 +132,24 @@ class RecipeCard extends StatelessWidget {
 
                 const SizedBox(height: 4),
 
-                /// Date
-                Text(
-                  recipe.createdDate.toString(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      dateTitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      formatDate(recipe.createdDate),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 8),
