@@ -109,21 +109,21 @@ class DislikesCard extends StatelessWidget {
 
   void _manageDislikes(BuildContext context) {
     IngredientSelectorDialog.show(
-      context: context,
-      title: 'Sevmediğim Malzeme Ekle',
-      subtitle: 'Sevmediğiniz malzemeleri seçin',
-      currentList: dislikes,
-      availableIngredients: dislikes,
-      onAdd: (ingredient) {
-        onAdd(ingredient);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$ingredient sevmediklerinize eklendi!'),
-            backgroundColor: Colors.blue[600],
-          ),
-        );
-      },
-    );
+        context: context,
+        title: 'Sevmediğim Malzeme Ekle',
+        subtitle: 'Sevmediğiniz malzemeleri seçin',
+        currentList: dislikes,
+        availableIngredients: dislikes,
+        onAdd: (ingredient) {
+          onAdd(ingredient);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$ingredient sevmediklerinize eklendi!'),
+              backgroundColor: Colors.blue[600],
+            ),
+          );
+        },
+        colorSelection: Colors.red);
   }
 
   void _removeDislike(BuildContext context, String dislike) {

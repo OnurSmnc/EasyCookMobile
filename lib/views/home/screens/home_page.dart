@@ -7,8 +7,10 @@ import 'package:easycook/core/data/repositories/recipe_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
+import 'package:easycook/views/home/widgets/ingredinet_select.dart';
 import 'package:easycook/views/home/widgets/recipe_modal_popup.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
@@ -76,115 +78,144 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.orange,
         centerTitle: true,
       ),
-      body: SizedBox(
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Fotoğraf alanı
-            Container(
-              height: 250,
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: _image != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        _image!,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Fotoğraf alanı
+              Container(
+                height: 250,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _image != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          _image!,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const Center(
+                        child: Text('Fotoğraf seçilmedi'),
                       ),
-                    )
-                  : const Center(
-                      child: Text('Fotoğraf seçilmedi'),
-                    ),
-            ),
-
-            // Fotoğraf seçme butonları
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButtonWidget(
-                      icon: Icon(Icons.photo_library),
-                      title: "Galeriden Seç",
-                      onPressed: () => _pickImage(ImageSource.gallery),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButtonWidget(
-                      icon: Icon(Icons.camera_alt_sharp),
-                      title: "Fotoğraf Çek",
-                      onPressed: () => _pickImage(ImageSource.camera),
-                    ),
-                  ),
-                ],
               ),
-            ),
 
-            const SizedBox(height: 24),
-
-            // Loading indicator
-            if (_isLoading)
-              const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.orange,
+              // Fotoğraf seçme butonları
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButtonWidget(
+                        icon: Icon(Icons.photo_library),
+                        title: "Galeriden Seç",
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButtonWidget(
+                        icon: Icon(Icons.camera_alt_sharp),
+                        title: "Fotoğraf Çek",
+                        onPressed: () => _pickImage(ImageSource.camera),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-            // Tespit edilen malzemeler bölümü
-            if (_detectedIngredients.isNotEmpty && !_isLoading)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Tespit Edilen Malzemeler:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+              const SizedBox(height: 24),
+
+              // Loading indicator
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.orange,
+                  ),
+                ),
+
+              // Tespit edilen malzemeler bölümü
+              if (_detectedIngredients.isNotEmpty && !_isLoading)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Tespit Edilen Malzemeler:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _detectedIngredients
-                          .map((ingredient) => Chip(
-                                label: Text(ingredient.name),
-                                backgroundColor: Colors.orange[100],
-                                labelStyle:
-                                    const TextStyle(color: Colors.black87),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: _showRecipesModal,
-                      icon: const Icon(Icons.restaurant_menu),
-                      label: const Text('Önerilen Tarifleri Göster'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _detectedIngredients
+                            .map((ingredient) => Chip(
+                                  label: Text(ingredient.name),
+                                  backgroundColor: Colors.orange[100],
+                                  labelStyle:
+                                      const TextStyle(color: Colors.black87),
+                                ))
+                            .toList(),
                       ),
                     ),
-                  ),
-                ],
-              ),
-          ],
+                    if (_detectedIngredients.length <= 2)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Butona basıldığında yapılacaklar
+                              print('Buton tıklandı');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.black, // yazı rengi
+                              backgroundColor: Colors
+                                  .orange[100], // buton arkaplan rengi (örnek)
+                              side: BorderSide(color: Colors.black, width: 1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius
+                                    .zero, // Burada radius'u ayarlıyorsun
+                              ),
+                            ),
+                            child: const Text('Malzeme Öner'),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: _showRecipesModal,
+                        icon: const Icon(Icons.restaurant_menu),
+                        label: const Text('Önerilen Tarifleri Göster'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );

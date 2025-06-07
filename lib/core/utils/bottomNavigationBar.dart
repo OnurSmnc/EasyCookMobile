@@ -1,5 +1,6 @@
 // lib/main.dart
 import 'package:easycook/views/home/widgets/recipe_card.dart';
+import 'package:easycook/views/search/search_page.dart';
 import 'package:easycook/views/user/screens/user_profile_page.dart';
 import 'package:easycook/views/user/user_page.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   // Page list
   final List<Widget> _pages = [
     const HomePage(),
+    const SearchPage(),
     const FavoritePage(),
     const HistoryPage(),
     const UserProfilePage(), // 4. sayfa eklendi
@@ -41,6 +43,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             icon: Icon(Icons.home),
             label: 'Ana Sayfa',
             backgroundColor: Colors.orange,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Arama',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),

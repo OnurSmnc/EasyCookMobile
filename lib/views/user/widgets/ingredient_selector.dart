@@ -10,6 +10,7 @@ class IngredientSelectorDialog {
     required List<IngredientData> currentList,
     required List<IngredientData> availableIngredients,
     required Function(IngredientData) onAdd,
+    required Color colorSelection,
   }) {
     showDialog(
       context: context,
@@ -20,6 +21,7 @@ class IngredientSelectorDialog {
           currentList: currentList,
           availableIngredients: availableIngredients,
           onAdd: onAdd,
+          colorSelection: colorSelection,
         );
       },
     );
@@ -32,15 +34,17 @@ class IngredientSelectorWidget extends StatefulWidget {
   final List<IngredientData> currentList;
   final List<IngredientData> availableIngredients;
   final Function(IngredientData) onAdd;
+  final Color colorSelection;
 
-  const IngredientSelectorWidget({
-    Key? key,
-    required this.title,
-    required this.subtitle,
-    required this.currentList,
-    required this.availableIngredients,
-    required this.onAdd,
-  }) : super(key: key);
+  const IngredientSelectorWidget(
+      {Key? key,
+      required this.title,
+      required this.subtitle,
+      required this.currentList,
+      required this.availableIngredients,
+      required this.onAdd,
+      required this.colorSelection})
+      : super(key: key);
 
   @override
   _IngredientSelectorWidgetState createState() =>
@@ -177,7 +181,7 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                               child: Text(
                                 ingredient.name[0].toUpperCase(),
                                 style: TextStyle(
-                                  color: Colors.green[700],
+                                  color: widget.colorSelection,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

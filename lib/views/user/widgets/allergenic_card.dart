@@ -1,17 +1,13 @@
-import 'dart:ffi';
-
 import 'package:easycook/core/data/models/allergenics/allergenic_request.dart';
 import 'package:easycook/core/data/models/allergenics/allergenic_response.dart';
 import 'package:easycook/core/data/models/allergenics/remove_allergenic_request.dart';
 import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
-import 'package:easycook/core/data/models/user_profile/user_profile_model.dart';
 import 'package:easycook/core/data/repositories/allergies_repository.dart';
 import 'package:easycook/core/data/repositories/ingredient_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/views/user/widgets/ingredient_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import '../widgets/custom_chip.dart';
 
 class AllergiesCard extends StatefulWidget {
@@ -166,23 +162,23 @@ class _AllergiesCardState extends State<AllergiesCard> {
 
   void _manageAllergies(BuildContext context) async {
     IngredientSelectorDialog.show(
-      context: context,
-      title: 'Alerji Ekle',
-      subtitle: 'Alerjik olduğunuz malzemeleri seçin',
-      currentList: allergies.map((a) => a.ingredients).toList(),
-      availableIngredients: availableIngredients ?? [],
-      onAdd: (ingredient) async {
-        if (ingredient != null) {
-          _addAllergy(ingredient); // Sadece bu satır!
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Lütfen bir malzeme seçin.'),
-            ),
-          );
-        }
-      },
-    );
+        context: context,
+        title: 'Alerji Ekle',
+        subtitle: 'Alerjik olduğunuz malzemeleri seçin',
+        currentList: allergies.map((a) => a.ingredients).toList(),
+        availableIngredients: availableIngredients ?? [],
+        onAdd: (ingredient) async {
+          if (ingredient != null) {
+            _addAllergy(ingredient); // Sadece bu satır!
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Lütfen bir malzeme seçin.'),
+              ),
+            );
+          }
+        },
+        colorSelection: Colors.red[700]!);
   }
 
   void _addAllergy(IngredientData ingredient) async {

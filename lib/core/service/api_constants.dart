@@ -1,5 +1,5 @@
 class ApiConstats {
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'http://192.168.1.4:5000';
 
   //Endpointler
   static const String addViewedRecipes = 'api/ViewedRecipe/CreateViewedHistory';

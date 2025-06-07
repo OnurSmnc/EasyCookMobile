@@ -7,7 +7,7 @@ import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/views/history/used_images.dart';
 import 'package:easycook/views/history/viewed_recipes.dart';
-import 'package:easycook/views/history/yap%C4%B1lan_tarifler.dart';
+import 'package:easycook/views/history/yapılan_tarifler.dart';
 import 'package:flutter/material.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -19,10 +19,11 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   List<ViewedRecipeHistoryItem> _viewedRecipeHistory = [];
-
-  List<bool> _tappedState = [];
   List<RecipeMadedGetResponse> _madedRecipesList = [];
+  List<bool> _tappedState = [];
+
   late final RecipeRepository _recipeRepository;
+  int _selectedIndex = -1; // -1: hiçbiri seçili değil
 
   @override
   void initState() {
@@ -38,10 +39,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
     setState(() {
       _viewedRecipeHistory = history;
-      _tappedState = List.generate(
-        _viewedRecipeHistory.length ?? 0,
-        (index) => false,
-      );
+      _tappedState =
+          List.generate(_viewedRecipeHistory.length, (index) => false);
     });
   }
 
@@ -55,18 +54,15 @@ class _HistoryPageState extends State<HistoryPage> {
         });
       }
     } catch (e) {
-      print('hata: $e');
+      print('Hata: $e');
     }
   }
 
   void _onRecipeTapped(int index) {
     setState(() {
-      _tappedState[index] = !_tappedState[index]; // Toggle the tapped state
+      _tappedState[index] = !_tappedState[index];
     });
   }
-
-  int _selectedIndex =
-      -1; // -1: hiçbiri seçili değil, 0: ilk buton, 1: ikinci buton
 
   @override
   Widget build(BuildContext context) {
@@ -84,83 +80,81 @@ class _HistoryPageState extends State<HistoryPage> {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-            Row(
-              children: [
-                // İlk buton
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 0
-                          ? Colors.yellow
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ElevatedButtonWidget(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 0;
-                        });
-                      },
-                      title: "Görüntülenen Tarifler",
-                      icon: const Icon(Icons.history),
-                    ),
-                  ),
-                ),
-                Divider(
-                  color: Colors.orange,
-                ),
-                // İkinci buton
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 1
-                          ? Colors.yellow
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ElevatedButtonWidget(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 1;
-                        });
-                      },
-                      title: "Kullanılan Resimler",
-                      icon: const Icon(Icons.photo),
+            // 🔽 Kaydırılabilir butonlar
+            SizedBox(
+              height: 75,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: _selectedIndex == 0
+                            ? Colors.yellow
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButtonWidget(
+                        onPressed: () {
+                          setState(() {
+                            _selectedIndex = 0;
+                          });
+                        },
+                        title: "Görüntülenen Tarifler",
+                        icon: const Icon(Icons.history),
+                      ),
                     ),
                   ),
-                ),
-                Divider(
-                  color: Colors.orange,
-                ),
-                // İkinci buton
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 2
-                          ? Colors.yellow
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ElevatedButtonWidget(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 2;
-                          _fetchMadedRecipes();
-                        });
-                      },
-                      title: "Yapılan Tarifler",
-                      icon: const Icon(Icons.photo),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: _selectedIndex == 1
+                            ? Colors.yellow
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButtonWidget(
+                        onPressed: () {
+                          setState(() {
+                            _selectedIndex = 1;
+                          });
+                        },
+                        title: "Kullanılan Resimler",
+                        icon: const Icon(Icons.photo),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: _selectedIndex == 2
+                            ? Colors.yellow
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButtonWidget(
+                        onPressed: () {
+                          setState(() {
+                            _selectedIndex = 2;
+                            _fetchMadedRecipes();
+                          });
+                        },
+                        title: "Yapılan Tarifler",
+                        icon: const Icon(Icons.photo),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Divider(
-              color: Colors.black,
-            ),
+            const Divider(color: Colors.black),
+            // 🔽 Sayfa içeriği
             Expanded(
               child: () {
                 switch (_selectedIndex) {
@@ -175,9 +169,9 @@ class _HistoryPageState extends State<HistoryPage> {
                     return MadedRecipes(
                       selectedIndex: _selectedIndex,
                       recipeMadedList: _madedRecipesList,
-                    ); // 2 için yeni bir widget koy
+                    );
                   default:
-                    return const SizedBox(); // varsayılan boş bir widget
+                    return const SizedBox(); // boş ekran
                 }
               }(),
             ),
