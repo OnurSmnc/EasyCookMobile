@@ -34,6 +34,8 @@ class _LoginPageState extends State<LoginPage> {
       final loginResponse = await authRepository
           .login(LoginRequest(email: email, password: password));
 
+      print("Login successful: ${loginResponse.token}");
+
       // refresh token'ı kullanarak access token yeniless
       final refreshResponse = await authRepository.refreshToken(
         RefreshTokenRequest(

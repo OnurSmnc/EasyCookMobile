@@ -18,7 +18,7 @@ class AuthRepository {
         ApiConstats.login,
         request.toJson(),
       );
-
+      print("cevap login: $response");
       return LoginResponse.fromJson(response);
     } catch (e) {
       rethrow;

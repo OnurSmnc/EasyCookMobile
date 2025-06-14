@@ -1,5 +1,5 @@
 class ApiConstats {
-  static const String baseUrl = 'http://192.168.1.4:5000';
+  static const String baseUrl = 'http://10.0.2.2:5001';
 
   //Endpointler
   static const String addViewedRecipes = 'api/ViewedRecipe/CreateViewedHistory';
@@ -30,6 +30,7 @@ class ApiConstats {
   static const String getComment = 'api/FoodComment/GetAllUserComment';
   static const String madeRecipe = 'api/Tarifler/RecipeMaded';
   static const String getRecipeMaded = 'api/Tarifler/GetAllRecipeMaded';
+  static const String getRecommendedRecipes = 'api/Malzeme/GetRecommendatitons';
 
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds

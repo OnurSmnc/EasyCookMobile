@@ -10,6 +10,7 @@ import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/views/favorite/favorite_page.dart';
 import 'package:easycook/views/history/yap%C4%B1lan_tarifler.dart';
 import 'package:easycook/views/home/widgets/ingredinet_select.dart';
+import 'package:easycook/views/home/widgets/recipe_card.dart';
 import 'package:easycook/views/home/widgets/recipe_modal_popup.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,26 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  List<Recipes> recipesRecommended = [];
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecommendationRecipes();
+  }
+
+  Future<void> _fetchRecommendationRecipes() async {
+    try {
+      final response = await RecipeRepository().getRecommendationRecipesAsync();
+      if (response != null && mounted) {
+        setState(() {
+          recipesRecommended = response;
+        });
+      }
+    } catch (e) {
+      print('Hata: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,24 +82,6 @@ class _SearchPageState extends State<SearchPage> {
                       color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  // Butona basıldığında yapılacaklar
-                  print('Buton tıklandı');
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, // yazı rengi
-                  backgroundColor:
-                      Colors.orange[100], // buton arkaplan rengi (örnek)
-                  side: BorderSide(color: Colors.black, width: 1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.zero, // Burada radius'u ayarlıyorsun
-                  ),
-                ),
-                child: const Text('Malzeme Öner'),
-              ),
               SizedBox(height: 24),
               Row(
                 children: [
@@ -97,6 +100,37 @@ class _SearchPageState extends State<SearchPage> {
               ),
               SizedBox(
                 height: 24,
+              ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Önerilen Tarifler',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: recipesRecommended.map((recipe) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 280, // Sadece burada genişlik sınırla
+                        height: 400, // Yüksekliği de sınırla
+                        child: RecipeCards(recipe: recipe),
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
             ],
           ),

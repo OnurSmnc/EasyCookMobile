@@ -6,6 +6,7 @@ import 'package:easycook/core/service/api_service.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:easycook/views/home/screens/home_recipe_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class RecipeCards extends StatelessWidget {
   final Recipes recipe;
@@ -41,16 +42,25 @@ class RecipeCards extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  recipe.title,
-                  style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange),
+                RichText(
+                  maxLines: 1,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: recipe.title,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text.rich(
-                  TextSpan(
+                RichText(
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
                     children: [
                       TextSpan(
                         text: 'Malzemeler: ',
@@ -71,8 +81,9 @@ class RecipeCards extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text.rich(
-                  TextSpan(
+                RichText(
+                  maxLines: 3,
+                  text: TextSpan(
                     children: [
                       TextSpan(
                         text: 'Link: ',
