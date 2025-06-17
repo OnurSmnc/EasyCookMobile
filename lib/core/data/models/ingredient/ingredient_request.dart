@@ -1,20 +1,20 @@
 class IngredientData {
   final int id;
-  final String name;
-  final String image;
+  final String? name;
+  final String? image;
 
   IngredientData({
     required this.id,
-    required this.name,
-    required this.image,
+    this.name,
+    this.image,
   });
 
   // Factory method to create an Ingredient from a JSON map
   factory IngredientData.fromJson(Map<String, dynamic> json) {
     return IngredientData(
       id: json['id'] as int,
-      name: json['name'] as String,
-      image: json['image'] as String,
+      name: json['name'] as String?,
+      image: json['image'] as String?,
     );
   }
 

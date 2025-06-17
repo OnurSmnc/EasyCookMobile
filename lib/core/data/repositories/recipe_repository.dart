@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/data/models/recipeapiresponse.dart';
 import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/data/models/recipes/recipeAdd/RecipeAddRequest.dart';
@@ -32,6 +33,32 @@ class RecipeRepository {
   Future<List<Recipes>> getRecommendationRecipesAsync() async {
     try {
       final response = await _api.get(ApiConstats.getRecommendedRecipes);
+
+      if (response != null) {
+        final data = response is String ? jsonDecode(response) : response;
+
+        final list =
+            (data as List).map((item) => Recipes.fromJson(item)).toList();
+        return list.toList();
+      } else {
+        throw Exception('API error: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('An error occurred: $e');
+    }
+  }
+
+  Future<List<Recipes>> getAllRecipesBySearch(
+      List<IngredientData> request) async {
+    try {
+      final body = {
+        "ingredientList": request.map((e) => e.toJson()).toList(),
+      };
+
+      final response = await _api.post(
+        ApiConstats.getAllRecipes,
+        body,
+      );
 
       if (response != null) {
         final data = response is String ? jsonDecode(response) : response;

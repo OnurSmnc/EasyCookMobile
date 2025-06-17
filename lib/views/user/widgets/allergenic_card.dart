@@ -141,14 +141,14 @@ class _AllergiesCardState extends State<AllergiesCard> {
                     runSpacing: 8,
                     children: allergies
                         .map((allergy) => CustomChip(
-                              label: allergy.ingredients
-                                  .name, // Use the appropriate property for String
+                              label: allergy.ingredients.name ??
+                                  '', // Use the appropriate property for String
                               backgroundColor: Colors.red[100]!,
                               textColor: Colors.red[700]!,
                               onDelete: () => _removeAllergy(
                                   context,
                                   allergy.ingredients.id,
-                                  allergy.ingredients.name),
+                                  allergy.ingredients.name ?? ''),
                             ))
                         .toList(),
                   ),
@@ -306,12 +306,23 @@ class _AllergiesCardState extends State<AllergiesCard> {
     } catch (e) {
       print('Error removing allergy: $e');
     }
+
     setState(() {
       allergies.removeWhere((allergy) => allergy.ingredients.id == allergyId);
-      availableIngredients?.add(
-        IngredientData(id: allergyId, name: 'Alerji Kaldırıldı', image: 'aaa'),
-      );
+      _updateAvailableIngredients();
     });
     // Optionally, call your API to remove the allergy from the backend here.
+  }
+
+  void _updateAvailableIngredients() {
+    final selectedIds = allergies.map((e) => e.id).toSet();
+    setState(() {
+      availableIngredients = availableIngredients
+          ?.where((i) => !selectedIds.contains(i.id))
+          .toList();
+      print("--- Updating available ingredients ---");
+      print("Selected IDs: $selectedIds");
+      print("Available Ingredients AFTER UPDATE:");
+    });
   }
 }

@@ -5,7 +5,9 @@ import 'package:easycook/views/user/widgets/ingredient_selector.dart';
 import 'package:flutter/material.dart';
 
 class IngredientCard extends StatefulWidget {
-  const IngredientCard({super.key});
+  final void Function(List<IngredientData>) onSelectionChanged;
+
+  const IngredientCard({super.key, required this.onSelectionChanged});
   @override
   State<IngredientCard> createState() => _IngredientCardState();
 }
@@ -45,6 +47,7 @@ class _IngredientCardState extends State<IngredientCard> {
       setState(() {
         selectedIngredients.add(ingredient);
         _updateAvailableIngredients();
+        widget.onSelectionChanged(selectedIngredients);
       });
     }
   }
@@ -53,6 +56,7 @@ class _IngredientCardState extends State<IngredientCard> {
     setState(() {
       selectedIngredients.removeWhere((i) => i.id == ingredient.id);
       _updateAvailableIngredients();
+      widget.onSelectionChanged(selectedIngredients);
     });
   }
 
@@ -61,6 +65,9 @@ class _IngredientCardState extends State<IngredientCard> {
     setState(() {
       availableIngredients =
           allIngredients.where((i) => !selectedIds.contains(i.id)).toList();
+      print("--- Updating available ingredients ---");
+      print("Selected IDs: $selectedIds");
+      print("Available Ingredients AFTER UPDATE:");
     });
   }
 
@@ -210,7 +217,7 @@ class _IngredientCardState extends State<IngredientCard> {
                     runSpacing: 8,
                     children: selectedIngredients
                         .map((ingredient) => CustomChip(
-                              label: ingredient.name,
+                              label: ingredient.name ?? "",
                               backgroundColor: Colors.orange[100]!,
                               textColor: Colors.orange[700]!,
                               onDelete: () =>

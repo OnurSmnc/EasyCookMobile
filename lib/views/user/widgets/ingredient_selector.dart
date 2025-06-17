@@ -77,7 +77,8 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
     setState(() {
       String query = _searchController.text.toLowerCase();
       filteredIngredients = availableIngredients
-          .where((ingredient) => ingredient.name.toLowerCase().contains(query))
+          .where((ingredient) =>
+              (ingredient.name ?? '').toLowerCase().contains(query))
           .toList();
     });
   }
@@ -179,7 +180,10 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                             leading: CircleAvatar(
                               backgroundColor: Colors.green[100],
                               child: Text(
-                                ingredient.name[0].toUpperCase(),
+                                (ingredient.name != null &&
+                                        ingredient.name!.isNotEmpty
+                                    ? ingredient.name![0].toUpperCase()
+                                    : '?'),
                                 style: TextStyle(
                                   color: widget.colorSelection,
                                   fontWeight: FontWeight.bold,
@@ -187,7 +191,7 @@ class _IngredientSelectorWidgetState extends State<IngredientSelectorWidget> {
                               ),
                             ),
                             title: Text(
-                              ingredient.name,
+                              ingredient.name as String,
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                             trailing: Icon(

@@ -1,4 +1,6 @@
 // lib/features/home/widgets/recipe_card.dart
+import 'dart:io';
+
 import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/data/repositories/viewed_recipe_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
@@ -25,6 +27,7 @@ class RecipeCards extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
+            width: double.infinity,
             height: 150,
             decoration: BoxDecoration(
               color: Colors.grey[300],
@@ -33,9 +36,17 @@ class RecipeCards extends StatelessWidget {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Center(
-              child: Text('${recipe.title} Görseli'),
-            ),
+            clipBehavior: Clip.hardEdge,
+            child: (recipe.image != null &&
+                    recipe.image!.isNotEmpty &&
+                    recipe.image != "null")
+                ? Image.network(
+                    recipe.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Center(child: Text('Resim yüklenemedi')),
+                  )
+                : const Center(child: Text('Resim yok')),
           ),
           Padding(
             padding: const EdgeInsets.all(12),

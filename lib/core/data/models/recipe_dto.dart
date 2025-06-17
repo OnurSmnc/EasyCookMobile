@@ -10,7 +10,7 @@ class RecipeDto {
     required this.recipeId,
     required this.title,
     required this.url,
-    required this.image,
+    this.image,
     required this.recipeFood,
     required this.ingredients,
   });
@@ -20,9 +20,9 @@ class RecipeDto {
       recipeId: json['recipeId'],
       title: json['title'],
       url: json['url'],
-      image: json['image'],
       recipeFood: json['recipeFood'],
       ingredients: json['ingredients'],
+      image: json['image'] != null ? json['image'] as String : null,
     );
   }
 

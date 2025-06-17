@@ -40,6 +40,7 @@ class _MadedRecipesState extends State<MadedRecipes> {
               url: _recipeMadedList.recipeDto.url,
               id: _recipeMadedList.recipeDto.recipeId,
               createdDate: _recipeMadedList.createdDate.toIso8601String(),
+              image: _recipeMadedList.recipeDto.image,
             );
 
             return RecipeCard(

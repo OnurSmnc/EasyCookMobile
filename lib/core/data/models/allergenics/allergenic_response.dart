@@ -18,7 +18,7 @@ class AllergenicResponse {
     return AllergenicResponse(
       id: json['id'] as int,
       ingredientsId: json['ingredientsId'] as int,
-      userId: json['userId'] as String,
+      userId: json['userId']?.toString() ?? '',
       ingredients:
           IngredientData.fromJson(json['ingredients'] as Map<String, dynamic>),
     );

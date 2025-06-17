@@ -81,6 +81,7 @@ class ViewedRecipe {
   final String ingredients;
   final String recipeFood;
   final int id;
+  final String? image;
 
   ViewedRecipe({
     required this.viewedDate,
@@ -90,6 +91,7 @@ class ViewedRecipe {
     required this.ingredients,
     required this.recipeFood,
     required this.id,
+    this.image,
   });
 
   factory ViewedRecipe.fromJson(Map<String, dynamic> json) {
@@ -101,6 +103,7 @@ class ViewedRecipe {
       ingredients: json['ingredients'],
       recipeFood: json['recipeFood'],
       id: json['id'] != null ? json['id'] as int : 0,
+      image: json['image'] != null ? json['image'] as String : null,
     );
   }
 }

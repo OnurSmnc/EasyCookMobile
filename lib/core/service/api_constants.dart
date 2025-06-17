@@ -30,7 +30,9 @@ class ApiConstats {
   static const String getComment = 'api/FoodComment/GetAllUserComment';
   static const String madeRecipe = 'api/Tarifler/RecipeMaded';
   static const String getRecipeMaded = 'api/Tarifler/GetAllRecipeMaded';
+  static const String getAllRecipes = 'api/Malzeme/GetAllRecipesBySearch';
   static const String getRecommendedRecipes = 'api/Malzeme/GetRecommendatitons';
+  static const String getUsedImages = 'api/Malzeme/GetAllUsedImagesFromDb';
 
   // API timeout durations
   static const int connectionTimeout = 30000; // milliseconds

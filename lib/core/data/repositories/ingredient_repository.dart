@@ -1,5 +1,6 @@
 import 'package:easycook/core/data/models/allergenics/allergenic_request.dart';
 import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
+import 'package:easycook/core/data/models/usedImages/used_images_request.dart';
 import 'package:easycook/core/service/api_constants.dart';
 import 'package:easycook/core/service/api_service.dart';
 
@@ -38,6 +39,26 @@ class IngredientRepository {
       return response;
     } catch (e) {
       print('Error in addIngredient: $e'); // Log the error
+      rethrow;
+    }
+  }
+
+  Future<List<UsedImageModel>> getUsedImages() async {
+    try {
+      final response = await _apiService.get(ApiConstats.getUsedImages);
+
+      if (response is List) {
+        return response
+            .map((e) => UsedImageModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else {
+        print(
+            'Error: API did not return a list for used images. Response type: ${response.runtimeType}');
+        throw Exception('Invalid API response format for used images.');
+      }
+    } catch (e) {
+      print(
+          'Error in getUsedImages: $e'); // Hata mesajı fonksiyon adıyla uyumlu olmalı
       rethrow;
     }
   }

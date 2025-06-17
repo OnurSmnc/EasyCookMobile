@@ -5,6 +5,7 @@ class Recipes {
   final String ingredients;
   final String recipeFood;
   final String? createdDate;
+  final String? image;
 
   Recipes({
     required this.id,
@@ -13,6 +14,7 @@ class Recipes {
     required this.ingredients,
     required this.recipeFood,
     this.createdDate,
+    this.image,
   });
 
   factory Recipes.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Recipes {
       ingredients: json['ingredients'],
       recipeFood: json['recipeFood'],
       createdDate: json['createdDate'],
+      image: json['image'], // Optional field, can be null
     );
   }
 
@@ -34,6 +37,7 @@ class Recipes {
       'ingredients': ingredients,
       'recipeFood': recipeFood,
       'createdDate': createdDate,
+      'image': image, // Optional field, can be null
     };
   }
 }

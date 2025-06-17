@@ -59,6 +59,7 @@ class _FavoritePageState extends State<FavoritePage> {
             ingredients: _favoriteRecipes[index].viewedRecipe.ingredients,
             url: _favoriteRecipes[index].viewedRecipe.url,
             recipeFood: _favoriteRecipes[index].viewedRecipe.recipeFood,
+            image: _favoriteRecipes[index].viewedRecipe.image,
           ),
           favoriteRecipeId: _favoriteRecipes[index].id,
           favoriteRepository: favoriteRepository,
@@ -133,7 +134,7 @@ class _FavoritePageState extends State<FavoritePage> {
                         leading: CircleAvatar(
                           radius: 30,
                           backgroundImage:
-                              NetworkImage(recipe.viewedRecipe.url),
+                              NetworkImage(recipe.viewedRecipe.image as String),
                         ),
                         title: Text(
                           recipe.viewedRecipe.title,

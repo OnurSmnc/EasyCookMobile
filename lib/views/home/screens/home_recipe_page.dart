@@ -226,12 +226,22 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
             Container(
               height: 200,
               width: double.infinity,
-              color: Colors.grey[300],
-              child: const Icon(
-                Icons.image,
-                size: 100,
-                color: Colors.grey,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[300],
               ),
+              child: (widget.recipe.image != null &&
+                      widget.recipe.image!.isNotEmpty)
+                  ? Image.network(
+                      widget.recipe.image!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(
+                        child: Text('Resim yüklenemedi'),
+                      ),
+                    )
+                  : const Center(child: Text('Resim yok')),
             ),
             const SizedBox(height: 16),
             Center(

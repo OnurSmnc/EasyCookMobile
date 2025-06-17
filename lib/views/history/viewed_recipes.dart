@@ -48,6 +48,7 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
               url: viewedRecipe.url,
               id: viewedRecipe.recipeId,
               createdDate: viewedRecipe.viewedDate,
+              image: viewedRecipe.image,
             );
 
             return RecipeCard(
@@ -97,21 +98,22 @@ class RecipeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 150,
+            height: 200,
+            width: double.infinity,
+            clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
               color: Colors.grey[300],
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
             ),
-            child: Center(
-              child: Text(
-                '${recipe.title} Görseli',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
+            child: (recipe.image != null && recipe.image!.isNotEmpty)
+                ? Image.network(
+                    recipe.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                      child: Text('Resim yüklenemedi'),
+                    ),
+                  )
+                : const Center(child: Text('Resim yok')),
           ),
           Padding(
             padding: const EdgeInsets.all(12),

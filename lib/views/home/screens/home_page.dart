@@ -12,9 +12,13 @@ import 'package:easycook/views/home/widgets/recipe_modal_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:easycook/core/utils/bottomNavigationBar.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final String? image;
+  const HomePage({Key? key, this.image}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -27,30 +31,59 @@ class _HomePageState extends State<HomePage> {
   List<Recipes> _suggestedRecipes = [];
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.image != null && widget.image!.isNotEmpty) {
+      if (widget.image!.startsWith('http')) {
+        // URL ise indir
+        _downloadImageToFile(widget.image!).then((file) {
+          setState(() {
+            _image = file;
+          });
+          _detectIngredientsFromImage(_image!);
+        });
+      } else {
+        // Direkt cihaz yoluysa
+        _image = File(widget.image!);
+        _detectIngredientsFromImage(_image!);
+      }
+    }
+  }
+
+  Future<File> _downloadImageToFile(String imageUrl) async {
+    final response = await http.get(Uri.parse(imageUrl));
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/temp_image.jpg');
+    await file.writeAsBytes(response.bodyBytes);
+    return file;
+  }
+
+  Future<void> _detectIngredientsFromImage(File imageFile) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final response =
+          await RecipeRepository().detectIngredientsFromImage(imageFile);
+      setState(() {
+        _detectedIngredients = response.detectedIngredients;
+        _suggestedRecipes = response.recipes;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("API hatası: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   void _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
-
     if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-        _isLoading = true;
-      });
-
-      try {
-        final response =
-            await RecipeRepository().detectIngredientsFromImage(_image!);
-
-        setState(() {
-          _detectedIngredients = response.detectedIngredients;
-          _suggestedRecipes = response.recipes;
-          _isLoading = false;
-        });
-      } catch (e) {
-        print("API hatası: $e");
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      _image = File(pickedFile.path);
+      await _detectIngredientsFromImage(_image!);
     }
   }
 
@@ -171,30 +204,6 @@ class _HomePageState extends State<HomePage> {
                             .toList(),
                       ),
                     ),
-                    if (_detectedIngredients.length <= 2)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Butona basıldığında yapılacaklar
-                              print('Buton tıklandı');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.black, // yazı rengi
-                              backgroundColor: Colors
-                                  .orange[100], // buton arkaplan rengi (örnek)
-                              side: BorderSide(color: Colors.black, width: 1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius
-                                    .zero, // Burada radius'u ayarlıyorsun
-                              ),
-                            ),
-                            child: const Text('Malzeme Öner'),
-                          ),
-                        ),
-                      ),
                     const SizedBox(height: 16),
                     Center(
                       child: ElevatedButton.icon(

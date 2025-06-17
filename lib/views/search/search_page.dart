@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:easycook/core/data/models/detect_ingredient.dart';
+import 'package:easycook/core/data/models/ingredient/ingredient_request.dart';
 import 'package:easycook/core/data/models/recipes.dart';
 import 'package:easycook/core/data/repositories/recipe_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
@@ -25,11 +26,62 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  List<IngredientData> selectedIngredients = [];
   List<Recipes> recipesRecommended = [];
+  List<DetectedIngredient> detectedIngredients = [];
+  List<Recipes> _Recipes = [];
   @override
   void initState() {
     super.initState();
     _fetchRecommendationRecipes();
+  }
+
+  void _onIngredientsChanged(List<IngredientData> ingredients) {
+    setState(() {
+      selectedIngredients = ingredients;
+    });
+  }
+
+  void _getRecipesAll() async {
+    try {
+      if (selectedIngredients.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Lütfen önce malzeme seçin.")),
+        );
+        return;
+      }
+
+      final recipes =
+          await RecipeRepository().getAllRecipesBySearch(selectedIngredients);
+
+      if (recipes != null && mounted) {
+        setState(() {
+          _Recipes = recipes;
+
+          detectedIngredients = selectedIngredients
+              .map((e) => DetectedIngredient(id: e.id, name: e.name ?? ""))
+              .toList();
+        });
+
+        _showRecipesModal();
+      }
+
+      print("Gelen tarif sayısı: ${recipes.length}");
+    } catch (e) {
+      print("Hata oluştu: $e");
+    }
+  }
+
+  void _showRecipesModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => RecipesModalPopup(
+        ingredients: detectedIngredients,
+        recipes: _Recipes,
+      ),
+    );
   }
 
   Future<void> _fetchRecommendationRecipes() async {
@@ -86,7 +138,9 @@ class _SearchPageState extends State<SearchPage> {
               Row(
                 children: [
                   Expanded(
-                    child: IngredientCard(),
+                    child: IngredientCard(
+                      onSelectionChanged: _onIngredientsChanged,
+                    ),
                   ),
                 ],
               ),
@@ -94,7 +148,9 @@ class _SearchPageState extends State<SearchPage> {
                 height: 24,
               ),
               ElevatedButtonWidget(
-                onPressed: () => {},
+                onPressed: () => {
+                  _getRecipesAll(),
+                },
                 title: 'Tarif Ara',
                 icon: Icon(Icons.search),
               ),
