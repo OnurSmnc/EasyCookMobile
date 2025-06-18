@@ -21,11 +21,8 @@ class _MadedRecipesState extends State<MadedRecipes> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: widget.selectedIndex == 0
-              ? Colors.orange.shade50
-              : Colors.transparent,
-        ),
+            borderRadius: BorderRadius.circular(15),
+            color: Colors.orange.shade50),
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: widget.recipeMadedList.length,

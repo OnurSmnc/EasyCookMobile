@@ -49,33 +49,50 @@ class _UsedImagesState extends State<UsedImages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: ClipRRect(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(15),
-            bottomRight: Radius.circular(15),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.orange,
-            centerTitle: true,
-            title: const Text(
-              'Kullanılan Resimler',
-              style: TextStyle(
-                color: Colors.white,
+      body: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: Colors.orange.shade50),
+        child: Column(
+          children: [
+            Container(
+              height: kToolbarHeight + 10,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(top: 10),
+              child: const Text(
+                'Kullanılan Resimler',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            elevation: 0,
-          ),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : imagePaths.isEmpty
+                      ? _buildEmptyState()
+                      : _buildImageGrid(),
+            ),
+          ],
         ),
       ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : imagePaths.isEmpty
-              ? _buildEmptyState()
-              : _buildImageGrid(),
     );
   }
 

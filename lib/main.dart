@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Malzeme Tespit ve Tarif Uygulaması',
       theme: ThemeData(
         primarySwatch: Colors.orange,
