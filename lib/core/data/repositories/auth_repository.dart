@@ -25,6 +25,15 @@ class AuthRepository {
     }
   }
 
+  Future<void> revoke() async {
+    try {
+      final response = await _api.post(ApiConstats.revoke, {});
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<RegisterResponse> register(RegisterRequest request) async {
     try {
       final response = await _api.post(

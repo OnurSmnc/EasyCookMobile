@@ -190,11 +190,8 @@ class _AllergiesCardState extends State<AllergiesCard> {
         ingredientId: [ingredient.id],
       ));
 
-      if (response != null &&
-          response['status'] == 200 &&
-          response['data'] is List &&
-          response['data'].isNotEmpty) {
-        final first = response['data'][0];
+      if (response is List && response.isNotEmpty) {
+        final first = response[0];
         final allergenic = AllergenicResponse.fromJson(first);
         id = allergenic.id;
         userId = allergenic.userId;
@@ -309,13 +306,16 @@ class _AllergiesCardState extends State<AllergiesCard> {
 
     setState(() {
       allergies.removeWhere((allergy) => allergy.ingredients.id == allergyId);
-      _updateAvailableIngredients();
     });
+    _updateAvailableIngredients();
+
     // Optionally, call your API to remove the allergy from the backend here.
   }
 
   void _updateAvailableIngredients() {
-    final selectedIds = allergies.map((e) => e.id).toSet();
+    final selectedIds =
+        allergies.map((e) => e.ingredients.id).toSet(); // 👈 DÜZELTİLDİ
+
     setState(() {
       availableIngredients = availableIngredients
           ?.where((i) => !selectedIds.contains(i.id))

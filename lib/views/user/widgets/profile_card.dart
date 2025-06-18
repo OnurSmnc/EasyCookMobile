@@ -157,6 +157,9 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                 decoration: InputDecoration(
                   labelText: 'Ad',
                   border: OutlineInputBorder(),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green, width: 1),
+                  ),
                 ),
               ),
               SizedBox(height: 16),
@@ -165,6 +168,9 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                 decoration: InputDecoration(
                   labelText: 'Soyad',
                   border: OutlineInputBorder(),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green, width: 1),
+                  ),
                 ),
               ),
               SizedBox(height: 16),
@@ -173,6 +179,9 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
                 decoration: InputDecoration(
                   labelText: 'E-posta',
                   border: OutlineInputBorder(),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.green, width: 1),
+                  ),
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -181,9 +190,13 @@ class _ProfileInfoCardState extends State<ProfileInfoCard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('İptal'),
+              child: Text('İptal', style: TextStyle(color: Colors.red[600])),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green[600], // Buton rengi
+                foregroundColor: Colors.white, // Metin rengi
+              ),
               onPressed: () {
                 if (nameController.text.isNotEmpty &&
                     emailController.text.isNotEmpty) {

@@ -13,7 +13,8 @@ class PasswordCard extends StatefulWidget {
 }
 
 class _PasswordCardState extends State<PasswordCard> {
-  final apiService = ApiService(baseUrl: ApiConstats.baseUrl);
+  final apiService =
+      ApiService(baseUrl: ApiConstats.baseUrl); // Typo düzeltildi
   late final userRepository = UserRepository();
 
   @override
@@ -22,15 +23,16 @@ class _PasswordCardState extends State<PasswordCard> {
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0), // const eklendi
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
                 Icon(Icons.lock, color: Colors.orange[600]),
-                SizedBox(width: 12),
-                Text(
+                const SizedBox(width: 12), // const eklendi
+                const Text(
+                  // const eklendi
                   'Şifre Değiştir',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
@@ -45,7 +47,7 @@ class _PasswordCardState extends State<PasswordCard> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Text('Değiştir'),
+              child: const Text('Değiştir'), // const eklendi
             ),
           ],
         ),
@@ -56,144 +58,286 @@ class _PasswordCardState extends State<PasswordCard> {
   void _changePassword(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        TextEditingController currentPasswordController =
-            TextEditingController();
-        TextEditingController newPasswordController = TextEditingController();
-        TextEditingController confirmPasswordController =
-            TextEditingController();
-        bool showCurrentPassword = false;
-        bool showNewPassword = false;
-        bool showConfirmPassword = false;
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Şifre Değiştir'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: currentPasswordController,
-                    obscureText: !showCurrentPassword,
-                    decoration: InputDecoration(
-                      labelText: 'Mevcut Şifre',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          showCurrentPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showCurrentPassword = !showCurrentPassword;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: newPasswordController,
-                    obscureText: !showNewPassword,
-                    decoration: InputDecoration(
-                      labelText: 'Yeni Şifre',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          showNewPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showNewPassword = !showNewPassword;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: confirmPasswordController,
-                    obscureText: !showConfirmPassword,
-                    decoration: InputDecoration(
-                      labelText: 'Yeni Şifre Tekrar',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          showConfirmPassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showConfirmPassword = !showConfirmPassword;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('İptal'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (currentPasswordController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Mevcut şifrenizi girin!')),
-                      );
-                      return;
-                    }
-
-                    if (newPasswordController.text.length < 6) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text('Yeni şifre en az 6 karakter olmalı!')),
-                      );
-                      return;
-                    }
-
-                    try {
-                      // Call the userRepository to change the password
-                      await userRepository.changePassword(
-                        PasswordRequest(
-                          activePassword: currentPasswordController.text,
-                          newPassword: newPasswordController.text,
-                          confirmPassword: confirmPasswordController.text,
-                        ),
-                      );
-
-                      // If successful, close the dialog and show success message
-                      if (mounted) {
-                        // Check if the widget is still mounted before interacting with context
-                        Navigator.pop(context);
-                        SnackBar(
-                            content: Text('Şifre başarıyla değiştirildi!'));
-                      }
-                    } on ApiException catch (e) {
-                      if (mounted) {
-                        SnackBar(content: Text('Hata: ${e.message}'));
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        SnackBar(content: Text('Bilinmeyen bir hata oluştu'));
-                      }
-                    }
-                  },
-                  child: Text('Değiştir'),
-                ),
-              ],
-            );
-          },
-        );
+      builder: (BuildContext dialogContext) {
+        // Context ismi değiştirildi
+        return const PasswordChangeDialog();
       },
+    );
+  }
+}
+
+class PasswordChangeDialog extends StatefulWidget {
+  const PasswordChangeDialog({Key? key}) : super(key: key);
+
+  @override
+  State<PasswordChangeDialog> createState() => _PasswordChangeDialogState();
+}
+
+class _PasswordChangeDialogState extends State<PasswordChangeDialog> {
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final UserRepository _userRepository = UserRepository();
+
+  bool _showCurrentPassword = false;
+  bool _showNewPassword = false;
+  bool _showConfirmPassword = false;
+  bool _isLoading = false;
+
+  String? _currentPasswordError;
+  String? _newPasswordError;
+  String? _confirmPasswordError;
+
+  @override
+  void dispose() {
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _clearErrors() {
+    setState(() {
+      _currentPasswordError = null;
+      _newPasswordError = null;
+      _confirmPasswordError = null;
+    });
+  }
+
+  bool _validateInputs() {
+    _clearErrors();
+    bool isValid = true;
+
+    // Mevcut şifre kontrolü
+    if (_currentPasswordController.text.isEmpty) {
+      setState(() {
+        _currentPasswordError = 'Mevcut şifre boş olamaz!';
+      });
+      isValid = false;
+    }
+
+    // Yeni şifre kontrolü
+    if (_newPasswordController.text.isEmpty) {
+      setState(() {
+        _newPasswordError = 'Yeni şifre boş olamaz!';
+      });
+      isValid = false;
+    } else if (_newPasswordController.text.length < 6) {
+      setState(() {
+        _newPasswordError = 'Yeni şifre en az 6 karakter olmalı!';
+      });
+      isValid = false;
+    } else if (_newPasswordController.text[0] !=
+        _newPasswordController.text[0].toUpperCase()) {
+      setState(() {
+        _newPasswordError = 'Şifre büyük harf ile başlamalı!';
+      });
+      isValid = false;
+    }
+
+    // Şifre tekrar kontrolü
+    if (_confirmPasswordController.text.isEmpty) {
+      setState(() {
+        _confirmPasswordError = 'Şifre tekrarı boş olamaz!';
+      });
+      isValid = false;
+    } else if (_confirmPasswordController.text != _newPasswordController.text) {
+      setState(() {
+        _confirmPasswordError = 'Şifreler eşleşmiyor!';
+      });
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  Future<void> _changePassword() async {
+    if (!_validateInputs()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await _userRepository.changePassword(
+        PasswordRequest(
+          activePassword: _currentPasswordController.text,
+          newPassword: _newPasswordController.text,
+          confirmPassword: _confirmPasswordController.text,
+        ),
+      );
+
+      if (!mounted) return;
+
+      // Başarılı durumda - boş string kontrolü de eklendi
+      if ((response.confirmPasswordError == null ||
+              response.confirmPasswordError!.isEmpty) &&
+          (response.currentPasswordError == null ||
+              response.currentPasswordError!.isEmpty)) {
+        // Önce loading'i durdur
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Popup'ı kapat
+        if (mounted) {
+          Navigator.of(context).pop();
+
+          // Başarı mesajını göster
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Şifre başarıyla değiştirildi!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        return;
+      } else {
+        // API'den gelen hatalar
+        setState(() {
+          _confirmPasswordError = response.confirmPasswordError;
+          _currentPasswordError = response.currentPasswordError;
+          _isLoading = false;
+        });
+      }
+    } on ApiException catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bilinmeyen bir hata oluştu'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String labelText,
+    required bool obscureText,
+    required VoidCallback onToggleVisibility,
+    String? errorText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          enabled: !_isLoading,
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: const TextStyle(color: Colors.black),
+            border: const OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.orange)),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.orange, width: 2),
+            ),
+            errorText: errorText,
+            suffixIcon: IconButton(
+              icon: Icon(
+                obscureText ? Icons.visibility_off : Icons.visibility,
+              ),
+              onPressed: _isLoading ? null : onToggleVisibility,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Şifre Değiştir'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildPasswordField(
+              controller: _currentPasswordController,
+              labelText: 'Mevcut Şifre',
+              obscureText: !_showCurrentPassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _showCurrentPassword = !_showCurrentPassword;
+                });
+              },
+              errorText: _currentPasswordError,
+            ),
+            const SizedBox(height: 16),
+            _buildPasswordField(
+              controller: _newPasswordController,
+              labelText: 'Yeni Şifre',
+              obscureText: !_showNewPassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _showNewPassword = !_showNewPassword;
+                });
+              },
+              errorText: _newPasswordError,
+            ),
+            const SizedBox(height: 16),
+            _buildPasswordField(
+              controller: _confirmPasswordController,
+              labelText: 'Yeni Şifre Tekrar',
+              obscureText: !_showConfirmPassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _showConfirmPassword = !_showConfirmPassword;
+                });
+              },
+              errorText: _confirmPasswordError,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          child: const Text(
+            'İptal',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange[600], // Arka plan rengi
+            foregroundColor: Colors.white, // Yazı rengi
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: _isLoading ? null : _changePassword,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Değiştir'),
+        ),
+      ],
     );
   }
 }

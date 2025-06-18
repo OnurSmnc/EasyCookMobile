@@ -8,14 +8,15 @@ import 'package:easycook/core/service/api_service.dart';
 class UserRepository {
   final ApiService _api = ApiService();
 
-  Future<String> changePassword(PasswordRequest request) async {
+  Future<PasswordResponse> changePassword(PasswordRequest request) async {
     try {
       final response = await _api.put(
         ApiConstats.changePassword,
         request.toJson(),
       );
 
-      return "success"; // Genellikle register işlemi bir yanıt döndürmez, sadece başarılı olması yeterlidir.
+      final data = PasswordResponse.fromJson(response);
+      return data; // Genellikle register işlemi bir yanıt döndürmez, sadece başarılı olması yeterlidir.
     } catch (e) {
       rethrow;
     }

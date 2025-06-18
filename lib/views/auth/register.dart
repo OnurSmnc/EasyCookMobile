@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:easycook/core/data/models/register/register_request.dart';
 import 'package:easycook/core/data/models/register/register_response.dart';
 import 'package:easycook/core/data/repositories/auth_repository.dart';
@@ -107,6 +109,8 @@ class _RegisterPageState extends State<RegisterPage> {
         MaterialPageRoute(
             builder: (context) => KaloriHedefPage(
                   userId: registerResponse.userId,
+                  email: email,
+                  password: password,
                 )),
       );
     }

@@ -15,3 +15,20 @@ class PasswordRequest {
         'confirmPassword': confirmPassword,
       };
 }
+
+class PasswordResponse {
+  final String? confirmPasswordError;
+  final String? currentPasswordError;
+
+  PasswordResponse({
+    this.confirmPasswordError,
+    this.currentPasswordError,
+  });
+
+  factory PasswordResponse.fromJson(Map<String, dynamic> json) {
+    return PasswordResponse(
+      confirmPasswordError: json['confirmPasswordError'],
+      currentPasswordError: json['currentPasswordError'],
+    );
+  }
+}

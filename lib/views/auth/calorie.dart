@@ -1,14 +1,23 @@
+import 'package:easycook/core/data/models/login/login_request.dart';
+import 'package:easycook/core/data/models/refreshToken/refreshToken_request.dart';
 import 'package:easycook/core/data/models/user/calorie/calorie_request.dart';
+import 'package:easycook/core/data/repositories/auth_repository.dart';
 import 'package:easycook/core/data/repositories/user_repository.dart';
 import 'package:easycook/core/service/api_constants.dart';
+import 'package:easycook/core/service/api_exception.dart';
 import 'package:easycook/core/service/api_service.dart';
+import 'package:easycook/core/utils/bottomNavigationBar.dart';
 import 'package:easycook/core/widgets/elevatedButton.dart';
 import 'package:flutter/material.dart';
 
 class KaloriHedefPage extends StatefulWidget {
   final String userId;
+  final String? email;
+  final String? password;
 
-  const KaloriHedefPage({Key? key, required this.userId}) : super(key: key);
+  const KaloriHedefPage(
+      {Key? key, required this.userId, this.email, this.password})
+      : super(key: key);
 
   @override
   State<KaloriHedefPage> createState() => _KaloriHedefPageState();
@@ -20,6 +29,13 @@ class _KaloriHedefPageState extends State<KaloriHedefPage> {
 
   final apiService = ApiService(baseUrl: ApiConstats.baseUrl);
   late final userRepository = UserRepository();
+  late final authRepository;
+
+  @override
+  void initState() {
+    super.initState();
+    authRepository = AuthRepository();
+  }
 
   void _hedefKaydet() async {
     if (_formKey.currentState!.validate()) {
@@ -37,8 +53,40 @@ class _KaloriHedefPageState extends State<KaloriHedefPage> {
           SnackBar(content: Text('Kalori hedefi başarıyla kaydedildi')),
         );
 
+        try {
+          final loginResponse = await authRepository.login(LoginRequest(
+              email: widget.email as String,
+              password: widget.password as String));
+
+          print("Login successful: ${loginResponse.token}");
+
+          // refresh token'ı kullanarak access token yeniless
+          final refreshResponse = await authRepository.refreshToken(
+            RefreshTokenRequest(
+              accessToken: loginResponse.token,
+              refreshToken: loginResponse.refreshToken,
+            ),
+          );
+
+          // refresh'ten dönen refreshToken'ı Authorization header olarak ayarla
+          apiService.updateAuthorizationHeader(refreshResponse.accessToken);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MainNavigationWrapper()),
+          );
+        } on ApiException catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Hata: ${e.message}')),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Bilinmeyen bir hata oluştu')),
+          );
+        }
+
         // Geri dön veya başka sayfaya yönlendir
-        Navigator.pop(context, hedef);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Hata: ${e.toString()}')),
