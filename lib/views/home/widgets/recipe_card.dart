@@ -115,6 +115,59 @@ class RecipeCards extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      maxLines: 3,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Kalori: ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange[300],
+                              fontSize: 14,
+                            ),
+                          ),
+                          TextSpan(
+                            text: recipe.calorieDto != null
+                                ? recipe.calorieDto!.calorie.toString()
+                                : 'Bilinmiyor',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    RichText(
+                      maxLines: 3,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Hazırlık Süresi: ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange[300],
+                              fontSize: 14,
+                            ),
+                          ),
+                          TextSpan(
+                            text: recipe.preparationTime != null
+                                ? recipe.preparationTime.toString() + ' dk'
+                                : 'Bilinmiyor',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
                 const SizedBox(height: 8),
                 ElevatedButtonWidget(
                   onPressed: () async {

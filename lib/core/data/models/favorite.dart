@@ -4,14 +4,17 @@ class Favorite {
   final int? viewedRecipesId;
   final ViewedRecipe viewedRecipe;
   final int recipeId;
+  final DateTime? createdDate;
+  final int? preparationTime;
 
-  Favorite({
-    required this.id,
-    required this.userId,
-    required this.viewedRecipesId,
-    required this.viewedRecipe,
-    required this.recipeId,
-  });
+  Favorite(
+      {required this.id,
+      required this.userId,
+      required this.viewedRecipesId,
+      required this.viewedRecipe,
+      required this.recipeId,
+      this.createdDate,
+      this.preparationTime});
 
   factory Favorite.fromJson(Map<String, dynamic> json) {
     return Favorite(
@@ -21,6 +24,10 @@ class Favorite {
       viewedRecipe: ViewedRecipe.fromJson(json[
           'viewedRecipes']), // Burada ViewedRecipe modelini doldurmalısınız
       recipeId: json['recipeId'] ?? 0,
+      createdDate: json['createdDate'] != null
+          ? DateTime.parse(json['createdDate'])
+          : null,
+      preparationTime: json['preparationTime'] ?? 0,
     );
   }
 }

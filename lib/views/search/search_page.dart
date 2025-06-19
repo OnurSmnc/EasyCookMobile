@@ -181,7 +181,7 @@ class _SearchPageState extends State<SearchPage> {
                       padding: const EdgeInsets.all(12),
                       child: SizedBox(
                         width: 280, // Sadece burada genişlik sınırla
-                        height: 400, // Yüksekliği de sınırla
+                        height: 405, // Yüksekliği de sınırla
                         child: RecipeCards(recipe: recipe),
                       ),
                     );

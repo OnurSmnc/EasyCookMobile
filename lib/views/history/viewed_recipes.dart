@@ -49,6 +49,8 @@ class _ViewedRecipesState extends State<ViewedRecipes> {
               id: viewedRecipe.recipeId,
               createdDate: viewedRecipe.viewedDate,
               image: viewedRecipe.image,
+              calorieDto: viewedRecipe.calorieDto,
+              preparationTime: viewedRecipe.preparationTime,
             );
 
             return RecipeCard(
@@ -178,6 +180,51 @@ class RecipeCard extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Kalori:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          recipe.calorieDto?.calorie.toString() ?? 'Bilgi yok',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Hazırlık:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          recipe.preparationTime != null
+                              ? '${recipe.preparationTime} dk'
+                              : 'Bilgi yok',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
 
                 /// Button
                 SizedBox(

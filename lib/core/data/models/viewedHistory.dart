@@ -1,3 +1,5 @@
+import 'package:easycook/core/data/models/recipes.dart';
+
 class ViewedRecipeHistoryItem {
   final String viewedDate;
   final int recipeId;
@@ -7,6 +9,9 @@ class ViewedRecipeHistoryItem {
   final String recipeFood;
   final int? id;
   final String? image;
+  final CalorieDto? calorieDto;
+  final int? preparationTime;
+
   ViewedRecipeHistoryItem({
     required this.viewedDate,
     required this.recipeId,
@@ -16,6 +21,8 @@ class ViewedRecipeHistoryItem {
     required this.recipeFood,
     this.id,
     this.image,
+    this.preparationTime,
+    this.calorieDto,
   });
 
   factory ViewedRecipeHistoryItem.fromJson(Map<String, dynamic> json) {
@@ -28,6 +35,10 @@ class ViewedRecipeHistoryItem {
       recipeFood: json['recipeFood'],
       id: json['id'] != null ? json['id'] as int : null,
       image: json['image'] != null ? json['image'] as String : null,
+      calorieDto: json['calorieDto'] != null
+          ? CalorieDto.fromJson(json['calorieDto'])
+          : null,
+      preparationTime: json['preparationTime'] ?? 0,
     );
   }
 }

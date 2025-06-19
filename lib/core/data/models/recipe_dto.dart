@@ -4,6 +4,7 @@ class RecipeDto {
   final String url;
   final String? image;
   final String recipeFood;
+  final int? preparationTime;
   final String ingredients;
 
   RecipeDto({
@@ -11,6 +12,7 @@ class RecipeDto {
     required this.title,
     required this.url,
     this.image,
+    this.preparationTime,
     required this.recipeFood,
     required this.ingredients,
   });
@@ -23,6 +25,7 @@ class RecipeDto {
       recipeFood: json['recipeFood'],
       ingredients: json['ingredients'],
       image: json['image'] != null ? json['image'] as String : null,
+      preparationTime: json['preparationTime'] ?? 0,
     );
   }
 

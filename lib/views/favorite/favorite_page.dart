@@ -34,12 +34,17 @@ class _FavoritePageState extends State<FavoritePage> {
     final favorite = await repo.getFavorites();
     if (!mounted) return;
     setState(() {
-      _favoriteRecipes = favorite;
+      _favoriteRecipes = favorite.reversed.toList();
+      ;
       _tappedState = List.generate(
         _favoriteRecipes.length ?? 0,
         (index) => false,
       );
     });
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}";
   }
 
   void _onRecipeTapped(int index) async {
@@ -145,7 +150,19 @@ class _FavoritePageState extends State<FavoritePage> {
                                   ? Colors.white
                                   : Colors.black),
                         ),
-                        subtitle: Text("Hazırlık Süresi: 30 dakika}"),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                "Hazırlık Süresi: ${recipe.preparationTime} dakika"),
+                            SizedBox(height: 4),
+                            Text(
+                              "Tarih: ${_formatDate(recipe.createdDate as DateTime)}", // Buraya tarih geliyor
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[600]),
+                            ),
+                          ],
+                        ),
                         trailing: Icon(Icons.favorite, color: Colors.orange),
                       ),
                     ),

@@ -38,6 +38,8 @@ class _MadedRecipesState extends State<MadedRecipes> {
               id: _recipeMadedList.recipeDto.recipeId,
               createdDate: _recipeMadedList.createdDate.toIso8601String(),
               image: _recipeMadedList.recipeDto.image,
+              calorieDto: _recipeMadedList.calorieDto,
+              preparationTime: _recipeMadedList.recipeDto.preparationTime,
             );
 
             return RecipeCard(

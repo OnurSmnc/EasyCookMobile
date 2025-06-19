@@ -35,7 +35,7 @@ class _UsedImagesState extends State<UsedImages> {
     try {
       var response = await ingredientRepository.getUsedImages();
       setState(() {
-        imagePaths = response;
+        imagePaths = response.reversed.toList();
         isLoading = false;
       });
     } catch (e) {
@@ -119,8 +119,6 @@ class _UsedImagesState extends State<UsedImages> {
     );
   }
 
-  static const String baseUrl = 'http://10.0.2.2:5001';
-
   Widget _buildImageGrid() {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -133,7 +131,8 @@ class _UsedImagesState extends State<UsedImages> {
       itemCount: imagePaths.length,
       itemBuilder: (context, index) {
         final imagePath = imagePaths[index];
-        final fullImageUrl = '$baseUrl${imagePath.image}'; // Yol birleştirildi
+        final fullImageUrl =
+            '${ApiConstats.baseUrl}${imagePath.image}'; // Yol birleştirildi
 
         return GestureDetector(
           onTap: () {

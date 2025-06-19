@@ -265,6 +265,37 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
             const SizedBox(height: 12),
             Divider(color: Colors.orange[500]),
             const SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black, width: 1),
+                color: Colors.orange[100],
+              ),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Hazırlık Süresi: ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange[800], // Yazının rengi
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextSpan(
+                      text: widget.recipe.preparationTime != null
+                          ? '${widget.recipe.preparationTime.toString()} dk'
+                          : 'Bilinmiyor',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Text(
               "Yapılışı:",
               style: TextStyle(
@@ -299,6 +330,15 @@ class _HomeRecipePageState extends State<HomeRecipePage> {
                     icon: Icon(Icons.food_bank)),
                 if (widget.recipe.url.isNotEmpty)
                   TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.orange[200],
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                        side: BorderSide(color: Colors.black, width: 1.0),
+                      ),
+                    ),
                     onPressed: () => _launchURL(widget.recipe.url),
                     child: const Text("Tarif Kaynağına Git"),
                   ),
